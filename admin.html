@@ -106,6 +106,7 @@ nav.tabs button.on{color:var(--red);border-top-color:var(--red);font-weight:600}
 .mbox{background:#fff;width:min(520px,100%);max-height:94dvh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom))}
 @media(min-width:600px){.modal{place-items:center}.mbox{border-radius:18px}}
 .mbox h2{font-size:22px;margin-bottom:4px}
+.mx{position:sticky;top:0;float:right;z-index:3;width:46px;height:46px;margin:-4px -4px 0 10px;border-radius:50%;border:1.5px solid var(--line);background:#fff;color:var(--ink);font-size:28px;line-height:1;display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .checks{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px}
 .checks label{display:flex;align-items:center;gap:7px;font-weight:500}
@@ -547,7 +548,7 @@ function orderForm(o){
 
 /* ---------- মডাল ---------- */
 function modal(html){
-  var R=$('#modalRoot');R.innerHTML='<div class="modal"><div class="mbox" role="dialog" aria-modal="true">'+html+'</div></div>';
+  var R=$('#modalRoot');R.innerHTML='<div class="modal"><div class="mbox" role="dialog" aria-modal="true"><button type="button" class="mx" data-close aria-label="বন্ধ করুন">×</button>'+html+'</div></div>';
   var m=$('.modal',R);m.addEventListener('click',function(e){if(e.target===m||e.target.closest('[data-close]'))closeModal()});
   return m;
 }
