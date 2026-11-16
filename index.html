@@ -3,10 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>NS Food Cart — অনলাইনে অর্ডার করুন</title>
-<meta name="description" content="NS Food Cart, পারখিদিরপুর বাজার, আটঘরিয়া, পাবনা। তেহারি, নাস্তা, ফ্রাই ও জুস অনলাইনে অর্ডার করুন, অর্ডার নম্বর দিয়ে ট্র্যাক করুন।">
+<title>NS Food Cart | গরম গরম তেহারি, নাস্তা ও জুস, অনলাইনে অর্ডার করুন</title>
+<meta name="description" content="বিফ তেহারি, চিকেন ফ্রাই, ফ্রেঞ্চ ফ্রাই আর ঠান্ডা জুস, দাম শুরু মাত্র ১০ টাকা থেকে। মোবাইল থেকেই অর্ডার দিন, আটঘরিয়ায় হোম ডেলিভারি নিন, টাকা দিন খাবার হাতে পেয়ে।">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NS Food Cart">
+<meta property="og:locale" content="bn_BD">
+<meta property="og:title" content="NS Food Cart | গরম গরম তেহারি, নাস্তা ও জুস, অনলাইনে অর্ডার করুন">
+<meta property="og:description" content="বিফ তেহারি, চিকেন ফ্রাই, ফ্রেঞ্চ ফ্রাই আর ঠান্ডা জুস, দাম শুরু মাত্র ১০ টাকা থেকে। মোবাইল থেকেই অর্ডার দিন, আটঘরিয়ায় হোম ডেলিভারি নিন, টাকা দিন খাবার হাতে পেয়ে।">
+<meta property="og:image" content="icons/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="NS Food Cart — Fresh Food, Happy Mood">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="NS Food Cart | গরম গরম তেহারি, নাস্তা ও জুস, অনলাইনে অর্ডার করুন">
+<meta name="twitter:description" content="বিফ তেহারি, চিকেন ফ্রাই, ফ্রেঞ্চ ফ্রাই আর ঠান্ডা জুস, দাম শুরু মাত্র ১০ টাকা থেকে। মোবাইল থেকেই অর্ডার দিন, আটঘরিয়ায় হোম ডেলিভারি নিন, টাকা দিন খাবার হাতে পেয়ে।">
+<meta name="twitter:image" content="icons/share.jpg">
 <meta name="theme-color" content="#140b0b">
 <link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -38,7 +52,7 @@ button{cursor:pointer}
 header.top{position:sticky;top:0;z-index:30;background:rgba(20,11,11,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .top .wrap{display:flex;align-items:center;gap:12px;height:66px}
 .brand{display:flex;align-items:center;gap:11px;text-decoration:none;margin-right:auto;min-width:0}
-.mark{width:46px;height:46px;border-radius:50%;border:3px solid var(--red);display:grid;place-items:center;font:700 19px/1 var(--display);font-style:italic;flex:none;overflow:hidden;background:#000;
+.mark{width:50px;height:50px;border-radius:50%;border:0;display:grid;place-items:center;font:700 19px/1 var(--display);font-style:italic;flex:none;overflow:hidden;background:#000;
   box-shadow:0 0 18px rgba(216,31,38,.55)}
 .mark img{width:100%;height:100%;object-fit:cover}
 .brand b{font:700 20px/1.1 var(--display);display:block;white-space:nowrap}
@@ -310,7 +324,7 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
 <header class="top">
   <div class="wrap">
     <a class="brand" href="#top">
-      <span class="mark" id="mark">NS</span>
+      <span class="mark" id="mark"><img src="icons/logo-mark.jpg" alt=""></span>
       <span><b id="sName">NS Food Cart</b><small id="sTag">Fresh Food • Happy Mood</small></span>
     </a>
     <a class="btn ghost track-link" href="#track">অর্ডার ট্র্যাক করুন</a>
@@ -359,7 +373,7 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
 <footer>
   <div class="wrap">
     <div class="fgrid">
-      <div><h3 id="fName">NS Food Cart</h3><p id="fAbout"></p></div>
+      <div><img id="fLogo" src="icons/logo.jpg" alt="NS Food Cart লোগো" width="96" height="96" style="border-radius:16px;display:block;margin-bottom:12px"><h3 id="fName">NS Food Cart</h3><p id="fAbout"></p></div>
       <div><h3>ঠিকানা ও সময়</h3><p id="fAddr"></p><p id="fHours"></p><p id="fDeliv"></p></div>
       <div><h3>যোগাযোগ</h3><p><a id="fPhone" href="#"></a></p><p><a id="fWa" href="#" target="_blank" rel="noopener">হোয়াটসঅ্যাপে মেসেজ দিন</a></p><p><a id="fFb" href="#" target="_blank" rel="noopener">ফেসবুক পেজ</a></p></div>
     </div>
@@ -410,10 +424,10 @@ function tel(p){return 'tel:'+String(p||'').replace(/[^\d+]/g,'')}
 
 function shell(){
   document.documentElement.style.setProperty('--red',S.accent||'#d81f26');
-  document.title=S.name+' — অনলাইনে অর্ডার করুন';
+  
   ['#sName','#fName','#cName'].forEach(function(i){$(i).textContent=S.name});
   $('#sTag').textContent=S.tagline;
-  $('#mark').innerHTML=S.logo?'<img src="'+esc(S.logo)+'" alt="">':esc((S.name||'NS').trim().split(/\s+/)[0].slice(0,2).toUpperCase());
+  $('#mark').innerHTML='<img src="'+esc(S.logo||'icons/logo-mark.jpg')+'" alt="">';$('#fLogo').src=S.logo||'icons/logo.jpg';void esc((S.name||'NS').trim().split(/\s+/)[0].slice(0,2).toUpperCase());
   var a=$('#announce');a.textContent=S.announcement||'';a.classList.toggle('hidden',!S.announcement);
   $('#heroTitle').textContent=S.heroTitle;$('#heroText').textContent=S.heroText;
   $('#openDot').classList.toggle('off',!S.shopOpen);$('#statusPill').classList.toggle('closed',!S.shopOpen);

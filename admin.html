@@ -8,6 +8,8 @@
 <meta name="theme-color" content="#140b0b">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
+<meta property="og:title" content="NS Food Cart Admin">
+<meta property="og:image" content="icons/share.jpg">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -42,7 +44,8 @@ label.l{display:block;font-weight:500;font-size:15px;margin:13px 0 4px}
 .login{min-height:100dvh;display:grid;place-items:center;padding:20px;background:var(--coal);
   background-image:radial-gradient(40rem 24rem at 100% 0,rgba(216,31,38,.35),transparent 60%)}
 .lbox{background:#fff;border-radius:18px;padding:28px 24px;width:min(400px,100%)}
-.lmark{width:68px;height:68px;border-radius:50%;background:#000;border:4px solid var(--red);color:#fff;display:grid;place-items:center;font:800 26px var(--display);font-style:italic;margin-bottom:14px}
+.lmark{width:96px;height:96px;border-radius:50%;background:#000;object-fit:cover;display:block;margin-bottom:14px}
+.blogo{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;background:#000}
 .lbox h1{font-size:26px}
 .lbox p{color:var(--muted);margin:4px 0 8px}
 .err{color:#b3261e;font-size:15px;margin-top:10px}
@@ -202,7 +205,7 @@ input[type=file]{max-width:100%;min-width:0;font-size:15px}
 <!-- লগইন -->
 <div class="login" id="login">
   <form class="lbox" id="lForm">
-    <div class="lmark">NS</div>
+    <img class="lmark" id="lLogo" src="icons/logo-mark.jpg" alt="NS Food Cart">
     <h1>অ্যাডমিন লগইন</h1>
     <p>অর্ডার, মেনু আর দোকানের তথ্য এখান থেকে চালান।</p>
     <label class="l" for="lEmail">ইমেইল</label>
@@ -219,6 +222,7 @@ input[type=file]{max-width:100%;min-width:0;font-size:15px}
 <!-- অ্যাপ -->
 <div class="hidden" id="app">
   <div class="bar">
+    <img class="blogo" id="bLogo" src="icons/logo-mark.jpg" alt="">
     <h1>NS Admin<small id="who"></small></h1>
     <label class="switch" title="অর্ডার নেওয়া চালু/বন্ধ"><input type="checkbox" id="openSw"><span id="openLbl">অর্ডার চালু</span></label>
     <button class="btn hidden" id="installBtn">ইনস্টল</button>
@@ -381,7 +385,7 @@ Store.onAuth(function(u){
 function start(){
   if(started)return;started=true;
   if(Store.ensureSeed)Store.ensureSeed().then(function(did){if(did)toast('মেনুর ১৬টি আইটেম Firebase-এ সেভ হয়েছে। এখন এডিট করতে পারেন।')},fail);
-  Store.watchSettings(function(s){S=s;fillSettings();$('#openSw').checked=!!S.shopOpen;$('#openLbl').textContent=S.shopOpen?'অর্ডার চালু':'অর্ডার বন্ধ'});
+  Store.watchSettings(function(s){S=s;$('#bLogo').src=$('#lLogo').src=S.logo||'icons/logo-mark.jpg';fillSettings();$('#openSw').checked=!!S.shopOpen;$('#openLbl').textContent=S.shopOpen?'অর্ডার চালু':'অর্ডার বন্ধ'});
   Store.watchCategories(function(c){cats=c;drawCats();drawProds()});
   Store.watchProducts(function(p){prods=p;drawProds();drawRevs()});
   Store.watchReviews(function(r){revs=r;drawRevs()});
