@@ -11,23 +11,17 @@
 | `firestore.rules` | Firestore সিকিউরিটি রুলস |
 | `manifest.webmanifest`, `sw.js`, `icons/` | অ্যাডমিন অ্যাপ ইনস্টলের জন্য |
 
-## এখনই চালিয়ে দেখা (ডেমো মোড)
+## Firebase (কনফিগ বসানো আছে: প্রজেক্ট `nsfoodcart`)
 
-Firebase কনফিগ না বসালে সাইট ডেমো মোডে চলে: ডেটা শুধু ওই ব্রাউজারেই থাকে।
-অ্যাডমিনে ঢুকতে লগইন পেজের **ডেমো অ্যাডমিন হিসেবে ঢুকুন** বাটন চাপুন, অথবা ইমেইল `admin@nsfoodcart.com` + পাসওয়ার্ড `demo1234` দিন।
-একই ব্রাউজারে `index.html` আর `admin.html` দুই ট্যাবে খুললে অর্ডার, স্ট্যাটাস, ছবি সব সাথে সাথে মিলে যায়।
-লোকাল কম্পিউটারে দেখতে ফোল্ডারে `python -m http.server` চালিয়ে `http://localhost:8000` খুলুন।
+`js/firebase-config.js`-এ কনফিগ বসানো আছে। Firebase Console-এ একবার এই কাজগুলো করতে হবে:
 
-## Firebase কানেক্ট করা (একবারই)
+1. **Build → Firestore Database → Create database** (production mode)।
+2. **Build → Authentication → Sign-in method → Email/Password** চালু করুন। তারপর **Users → Add user** দিয়ে অ্যাডমিনের ইমেইল ও পাসওয়ার্ড বানান। এটাই অ্যাডমিন লগইন।
+3. `firestore.rules` খুলে `ADMIN_EMAIL_HERE@gmail.com`-এর জায়গায় ২ নম্বর ধাপের ইমেইল লিখুন। পুরো ফাইলটা **Firestore → Rules**-এ পেস্ট করে **Publish** করুন।
+4. **Authentication → Settings → Authorized domains**-এ সাইটের ডোমেইন যোগ করুন (যেমন `username.github.io`)।
+5. `admin.html`-এ লগইন করুন। ডেটাবেস খালি থাকলে মেনুর ১৬টি আইটেম ও ৪টি ক্যাটাগরি নিজে থেকে Firestore-এ সেভ হয়ে যাবে; এরপর ইচ্ছামতো এডিট করুন।
 
-1. https://console.firebase.google.com → **Add project**।
-2. **Build → Firestore Database → Create database** (production mode, লোকেশন `asia-south1`)।
-3. **Build → Authentication → Get started → Email/Password** চালু করুন।
-   তারপর **Users → Add user** দিয়ে অ্যাডমিনের ইমেইল ও পাসওয়ার্ড বানান। এটাই অ্যাডমিন লগইন।
-4. **Project settings → Your apps → Web (`</>`)** → অ্যাপ রেজিস্টার করুন। যে `firebaseConfig` দেখাবে সেটার মানগুলো `js/firebase-config.js`-এ বসান।
-5. `firestore.rules` খুলে `ADMIN_EMAIL_HERE@gmail.com`-এর জায়গায় ৩ নম্বর ধাপের অ্যাডমিন ইমেইল লিখুন। পুরো ফাইলটা **Firestore → Rules**-এ পেস্ট করে **Publish** করুন।
-6. **Authentication → Settings → Authorized domains**-এ আপনার সাইটের ডোমেইন যোগ করুন (যেমন `username.github.io`)।
-7. `admin.html`-এ লগইন করে **সেটিংস → ডেমো মেনু লোড করুন** চাপুন। ফেসবুক পেজের মেনু কার্ডের ১৬টি আইটেম বসে যাবে; এরপর ইচ্ছামতো বদলান।
+অ্যাডমিন লগইনের আগেও ওয়েবসাইটে একই মেনু দেখায়, তাই কানেক্ট করার পর মেনু হারায় না। ডেমো মোডে ব্রাউজারে যা বদলেছিলেন (ছবি, নতুন আইটেম, অর্ডার) তা Firebase-এ আসে না।
 
 ## GitHub Pages-এ তোলা
 

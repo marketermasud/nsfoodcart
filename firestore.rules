@@ -5,7 +5,7 @@ service cloud.firestore {
     // ⬇️ এখানে আপনার অ্যাডমিন ইমেইল বসান (Firebase Authentication-এ যে ইমেইল দিয়ে ইউজার বানাবেন)
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email in ['masud.ppcconsultant@gmail.com'];
+        && request.auth.token.email in ['ADMIN_EMAIL_HERE@gmail.com'];
     }
 
     // দোকানের তথ্য, ক্যাটাগরি, আইটেম: সবাই দেখতে পারবে, শুধু অ্যাডমিন বদলাতে পারবে

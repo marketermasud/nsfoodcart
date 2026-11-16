@@ -137,7 +137,62 @@ nav.tabs button.on{color:var(--red);border-top-color:var(--red);font-weight:600}
 .sett h3{font-size:19px;margin:0 0 2px;color:var(--red)}
 .toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--coal);color:#fff;padding:9px 18px;border-radius:99px;z-index:90;font-size:15.5px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:92vw;text-align:center}
 .toast.on{opacity:1}
-@media(max-width:520px){.grid2{grid-template-columns:1fr}.stat b{font-size:22px}.bar .lbl{display:none}}
+/* পাশে বেরিয়ে গিয়ে পেজ ছোট হয়ে যাওয়া আটকায় */
+html,body{max-width:100%;overflow-x:hidden;overflow-x:clip}
+.bar h1{min-width:0;flex:1}
+.bar h1 small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .btn,.bar .switch{flex:none}
+input[type=file]{max-width:100%;min-width:0;font-size:15px}
+.imgpick{flex-wrap:wrap}
+.card,.mbox,main{min-width:0}
+.cust,.items span:first-child,.prow .i b{overflow-wrap:anywhere}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}.bar .lbl{display:none}}
+/* মোবাইলে সবকিছু বড় */
+@media(max-width:700px){
+  body{font-size:18px}
+  main{padding:14px 12px 110px}
+  .bar{padding-left:12px;padding-right:12px;gap:8px}
+  .bar h1{font-size:21px}
+  .bar h1 small{font-size:13px}
+  .switch{font-size:15px}
+  .btn{min-height:50px;padding:10px 18px;font-size:18px}
+  .btn.sm{min-height:46px;padding:8px 14px;font-size:17px}
+  .bar .btn{min-height:42px;font-size:16px}
+  .field{min-height:52px;font-size:18px;padding:12px 14px}
+  label.l{font-size:16.5px}
+  .help{font-size:15.5px}
+  .head h2{font-size:27px}
+  .stats{gap:8px}
+  .stat{padding:12px 10px}
+  .stat b{font-size:27px}
+  .stat span{font-size:15px}
+  .filters button{font-size:17px;padding:8px 16px}
+  .card{padding:16px}
+  .otop .no{font-size:24px}
+  .otop time{font-size:15.5px;margin-left:0;width:100%}
+  .st{font-size:15.5px;padding:4px 11px}
+  .items{font-size:18.5px}
+  .items .tot{font-size:21px}
+  .cust{font-size:18px}.cust b{font-size:19.5px}
+  .acts{gap:8px}
+  .acts .btn.ok{flex:1 1 100%;min-height:54px;font-size:19.5px}
+  .acts select{min-height:46px;font-size:17px;flex:1}
+  .prow{gap:12px;padding:12px 0}
+  .prow img,.prow .ph{width:62px;height:62px}
+  .prow .i b{font-size:19px}
+  .prow .i span{font-size:16.5px}
+  .catname{font-size:21px}
+  .switch input{width:50px;height:28px}
+  .switch input::after{width:22px;height:22px}
+  .switch input:checked::after{left:25px}
+  nav.tabs button{font-size:16px;padding:15px 1px 13px}
+  .mbox h2{font-size:25px}
+  .orow .i b{font-size:18.5px}.orow .i span{font-size:16px}
+  .qb{width:46px;height:46px;font-size:24px}
+  .rvw .pn{font-size:16.5px}
+  .toast{font-size:17px;bottom:92px}
+  .lbox h1{font-size:28px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -324,6 +379,7 @@ Store.onAuth(function(u){
 
 function start(){
   if(started)return;started=true;
+  if(Store.ensureSeed)Store.ensureSeed().then(function(did){if(did)toast('মেনুর ১৬টি আইটেম Firebase-এ সেভ হয়েছে। এখন এডিট করতে পারেন।')},fail);
   Store.watchSettings(function(s){S=s;fillSettings();$('#openSw').checked=!!S.shopOpen;$('#openLbl').textContent=S.shopOpen?'অর্ডার চালু':'অর্ডার বন্ধ'});
   Store.watchCategories(function(c){cats=c;drawCats();drawProds()});
   Store.watchProducts(function(p){prods=p;drawProds();drawRevs()});

@@ -118,6 +118,19 @@
         cb(s.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); }).sort(bySort));
       }, function (e) { console.error(name, e); cb([]); });
     };
+    // Firestore খালি থাকলে (প্রথমবার কানেক্ট করার পর) ফেসবুক পেজের মেনুটাই দেখায়,
+    // যতক্ষণ না অ্যাডমিন প্রথম লগইনে সেটা Firestore-এ সেভ হয় (settings/site.seeded = true)
+    var seeded = null, held = {}, SEEDS = { categories: SEED_CATS, products: SEED_PRODUCTS };
+    var flush = function (name) {
+      var h = held[name]; if (!h || !h.got || seeded === null) return;
+      h.cb(!h.list.length && !seeded ? SEEDS[name].slice().sort(bySort) : h.list);
+    };
+    db.doc('settings/site').onSnapshot(function (s) { seeded = !!((s.data() || {}).seeded); flush('categories'); flush('products'); },
+      function () { seeded = false; flush('categories'); flush('products'); });
+    var colSeed = function (name, cb) {
+      held[name] = { cb: cb, list: [], got: false };
+      return col(name, function (l) { held[name].list = l; held[name].got = true; flush(name); });
+    };
     Store = {
       mode: 'firebase',
       watchSettings: function (cb) {
@@ -125,8 +138,8 @@
           function (e) { console.error(e); cb(Object.assign({}, DEFAULTS)); });
       },
       saveSettings: function (data) { return db.doc('settings/site').set(data, { merge: true }); },
-      watchCategories: function (cb) { return col('categories', cb); },
-      watchProducts: function (cb) { return col('products', cb); },
+      watchCategories: function (cb) { return colSeed('categories', cb); },
+      watchProducts: function (cb) { return colSeed('products', cb); },
       watchSlides: function (cb) { return col('slides', cb); },
       watchReviews: function (cb) {
         return db.collection('reviews').orderBy('createdAt', 'desc').limit(600).onSnapshot(function (s) {
@@ -177,8 +190,17 @@
         var b = db.batch();
         SEED_CATS.forEach(function (c) { var d = Object.assign({}, c); delete d.id; b.set(db.doc('categories/' + c.id), d); });
         SEED_PRODUCTS.forEach(function (p) { var d = Object.assign({}, p); delete d.id; b.set(db.doc('products/' + p.id), d); });
-        b.set(db.doc('settings/site'), DEFAULTS, { merge: true });
+        b.set(db.doc('settings/site'), { seeded: true }, { merge: true });
         return b.commit();
+      },
+      // অ্যাডমিন প্রথমবার লগইন করলে খালি ডেটাবেসে মেনুটা নিজে থেকে সেভ করে দেয়
+      ensureSeed: async function () {
+        var st = await db.doc('settings/site').get();
+        if ((st.data() || {}).seeded) return false;
+        var p = await db.collection('products').limit(1).get();
+        if (p.empty) { await Store.seed(); return true; }
+        await db.doc('settings/site').set({ seeded: true }, { merge: true });
+        return false;
       },
       onAuth: function (cb) { return firebase.auth().onAuthStateChanged(cb); },
       signIn: function (email, pass) { return firebase.auth().signInWithEmailAndPassword(email, pass); },

@@ -1,9 +1,6 @@
 /* ============================================================
-   Firebase কনফিগ — শুধু এই ফাইলটাই এডিট করতে হবে।
-   Firebase Console → Project settings → Your apps → Web app
-   থেকে config কপি করে নিচে বসান।
-   যতক্ষণ apiKey "YOUR_API_KEY" থাকবে, সাইট ডেমো মোডে চলবে
-   (ডেটা শুধু এই ব্রাউজারে থাকবে)।
+   Firebase কনফিগ — NS Food Cart প্রজেক্ট (nsfoodcart)
+   অন্য Firebase প্রজেক্টে নিতে চাইলে শুধু এই মানগুলো বদলান।
    ============================================================ */
 window.FIREBASE_CONFIG = {
   apiKey: "AIzaSyDuRQzck_UPzSTtsvrzzInL250jC-hy1bI",
