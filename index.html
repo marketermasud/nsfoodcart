@@ -518,7 +518,7 @@ function card(p){
 function ctl(p){
   if(!p.available) return '<span class="ds">আজ শেষ</span>';
   var q=cart[p.id]||0;
-  if(!q) return '<button class="add" data-add="'+esc(p.id)+'" aria-label="'+esc(p.name)+' কার্টে যোগ করুন">যোগ করুন</button>';
+  if(!q) return '<button class="add" data-add="'+esc(p.id)+'" aria-label="'+esc(p.name)+' কার্টে যোগ করুন">অর্ডার করুন</button>';
   return '<span class="qty"><button data-dec="'+esc(p.id)+'" aria-label="কমান">−</button><span>'+bn(q)+'</span><button data-add="'+esc(p.id)+'" aria-label="বাড়ান">+</button></span>';
 }
 function row(p){
@@ -666,7 +666,7 @@ function drawCart(){
   }
   if(!t.count){
     step='cart';$('#dTitle').textContent='আপনার অর্ডার';
-    B.innerHTML='<p class="empty">কার্ট খালি। মেনু থেকে পছন্দের খাবার যোগ করুন।</p>';
+    B.innerHTML='<p class="empty">কার্ট খালি। মেনু থেকে পছন্দের খাবার অর্ডার করুন।</p>';
     F.innerHTML='<button class="btn block" id="toMenu">মেনু দেখুন</button>';
     $('#toMenu').onclick=function(){closeD();location.hash='#menu'};return;
   }
