@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ⬇️ এখানে আপনার অ্যাডমিন ইমেইল বসান (Firebase Authentication-এ যে ইমেইল দিয়ে ইউজার বানাবেন)
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email in ['ADMIN_EMAIL_HERE@gmail.com'];
+    }
+
+    // দোকানের তথ্য, ক্যাটাগরি, আইটেম: সবাই দেখতে পারবে, শুধু অ্যাডমিন বদলাতে পারবে
+    match /settings/{id}   { allow read: if true; allow write: if isAdmin(); }
+    match /categories/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /products/{id}   { allow read: if true; allow write: if isAdmin(); }
+    match /slides/{id}     { allow read: if true; allow write: if isAdmin(); }
+
+    // রিভিউ: সবাই পড়তে ও নতুন রিভিউ দিতে পারবে; বদলানো বা মুছে ফেলা শুধু অ্যাডমিনের হাতে
+    match /reviews/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.rating is number
+                    && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() >= 2 && request.resource.data.name.size() <= 60
+                    && request.resource.data.text is string && request.resource.data.text.size() <= 600
+                    && request.resource.data.productId is string;
+      allow update, delete: if isAdmin();
+    }
+
+    // অর্ডার (কাস্টমারের নাম, ফোন, ঠিকানা সহ): কাস্টমার শুধু নতুন অর্ডার দিতে পারবে, দেখতে পারবে শুধু অ্যাডমিন
+    match /orders/{id} {
+      allow create: if request.resource.data.status == 'pending'
+                    && request.resource.data.total is number
+                    && request.resource.data.items is list
+                    && request.resource.data.items.size() > 0
+                    && request.resource.data.items.size() <= 60;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ট্র্যাকিং (ব্যক্তিগত তথ্য ছাড়া): অর্ডার নম্বর জানলে যে কেউ একটা অর্ডারের অবস্থা দেখতে পারবে, তালিকা নয়
+    match /tracking/{id} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create: if request.resource.data.status == 'pending';
+      allow update, delete: if isAdmin();
+    }
+  }
+}
