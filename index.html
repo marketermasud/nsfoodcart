@@ -770,7 +770,7 @@ function track(raw){
     R.innerHTML='<div class="tcard"><div class="no">'+esc(o.orderNo)+'</div>'+
       '<div class="now'+(cancelled?' bad':'')+'">'+(cancelled?'অর্ডারটি বাতিল হয়েছে':esc(Store.statusLabel(o.status,o.type)))+'</div>'+
       tScene(o.status,o.type)+
-      (cancelled?'<p class="lead">কোনো প্রশ্ন থাকলে কল করুন '+esc(S.phone)+'।</p>':'<ol class="steps">'+steps+'</ol>')+
+      (cancelled?'<p class="lead">কোনো প্রশ্ন থাকলে কল করুন '+esc(S.phone)+'</p>':'<ol class="steps">'+steps+'</ol>')+
       '<div class="tsum">'+(o.items||[]).map(function(i){return esc(i.name)+' × '+bn(i.qty)}).join(', ')+
       '<br><b>মোট '+tk(o.total)+'</b> ('+(o.type==='pickup'?'দোকান থেকে নেবেন':'হোম ডেলিভারি')+')</div></div>';
   });
