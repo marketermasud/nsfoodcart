@@ -244,7 +244,26 @@ footer a{color:var(--cream)}
 .g2>div{min-width:0}
 .field{color-scheme:dark}
 /* মোবাইলের নিচের মেনু */
+/* ওপরের বার + হেডার একসাথে আটকে থাকে */
+.stick{position:sticky;top:0;z-index:30}
+header.top{position:static}
+.chips{top:var(--stickH,66px)}
+html{scroll-padding-top:calc(var(--stickH,66px) + 64px)}
+.evstrip{display:none}
+.ev-top{min-height:42px;padding:8px 18px}
 .bnav,.call-m{display:none}
+.track-link svg,.cartbtn .ci{display:none;width:23px;height:23px;flex:none}
+/* ছাড়ের অফার */
+.offbar{background:linear-gradient(90deg,#7a1418,#d81f26,#7a1418);color:#fff;text-align:center;padding:8px 16px;font-weight:600;font-size:15.5px}
+.offbar b{color:var(--gold)}
+.offbox{background:radial-gradient(circle at 50% 0,#7a1418,var(--coal-2) 62%);border:2px solid var(--gold);border-radius:22px;width:min(420px,100%);padding:30px 26px 26px;text-align:center;position:relative;animation:pop .5s cubic-bezier(.2,1.5,.4,1)}
+.offpct{font:800 86px/1 var(--display);color:var(--gold);text-shadow:0 4px 0 #000,0 0 40px rgba(242,182,50,.45)}
+.offpct small{display:block;font-size:26px;color:#fff;margin-top:4px;text-shadow:none}
+.offcond{display:inline-block;margin-top:14px;background:var(--gold);color:#241a05;font-weight:700;border-radius:999px;padding:5px 16px;font-size:16.5px}
+.offbox h2{font-size:27px;margin:14px 0 6px}
+.offbox p{color:#e6d5c8;margin:0 0 6px}
+.offbox .btn{margin-top:16px;font-size:19px;min-height:54px}
+.disc,.sum.disc{color:var(--gold)}
 /* কার্ট বার + ড্রয়ার */
 .cartbar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:40;max-width:560px;margin:0 auto;
   background:var(--red);color:#fff;border:0;border-radius:16px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:17px;box-shadow:0 12px 30px rgba(0,0,0,.55)}
@@ -301,7 +320,6 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
   .list{grid-template-columns:1fr}
   .list .row:nth-child(2){border-top:1px dashed var(--line)}
   .fgrid{grid-template-columns:1fr;gap:22px}
-  .top .track-link{display:none}
   .brand small{max-width:150px}
   .sec h2{font-size:26px}
   .drawer{top:auto;height:92dvh;width:100%;border-left:0;border-top:1px solid var(--line);border-radius:20px 20px 0 0;transform:translateY(102%)}
@@ -320,8 +338,19 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
   .cartbar{bottom:calc(66px + env(safe-area-inset-bottom))}
   body{padding-bottom:150px}
   .toast{bottom:146px}
-  .top .cartbtn{display:none}
-  .call-m{display:inline-flex;padding:8px 16px}
+  .ev-top{display:none}
+  .evstrip{display:block;width:100%;border:0;background:var(--gold);color:#241a05;font-weight:700;padding:9px 12px;font-size:16px}
+  .stick .announce,.stick .offbar,.stick .closedbar{font-size:13.5px;padding:5px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .top .wrap{gap:8px;padding:0 14px}
+  .brand{gap:9px}
+  .brand>span:last-child{min-width:0}
+  .brand b{font-size:18px;overflow:hidden;text-overflow:ellipsis}
+  .brand small{display:none}
+  .top .track-link{padding:0;width:46px;min-height:46px}
+  .top .track-link .tl,.top .cartbtn .cw{display:none}
+  .track-link svg,.cartbtn .ci{display:block}
+  .top .cartbtn{padding:0 12px;min-height:46px;gap:6px}
+  .pm.off{place-items:center;padding:18px}
   .hero h1{font-size:clamp(34px,10vw,52px)}
   .hero p{font-size:17px}
   .row{gap:10px}
@@ -336,7 +365,9 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
 <body>
 
 <div class="demo hidden" id="demoBar">ডেমো মোড: Firebase এখনো কানেক্ট করা হয়নি, অর্ডার শুধু এই ব্রাউজারে জমা থাকবে।</div>
+<div class="stick" id="stick">
 <div class="closedbar hidden" id="closedBar" role="status"></div>
+<div class="offbar hidden" id="offerBar"></div>
 <div class="announce hidden" id="freeBar" style="background:var(--gold);color:#241a05;font-weight:600"></div>
 <div class="announce hidden" id="announce"></div>
 
@@ -346,11 +377,14 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
       <span class="mark" id="mark"><img src="icons/logo-mark.jpg" alt=""></span>
       <span><b id="sName">NS Food Cart</b><small id="sTag">Fresh Food • Happy Mood</small></span>
     </a>
-    <a class="btn ghost track-link" href="#track">অর্ডার ট্র্যাক করুন</a>
+    <button class="btn gold ev-top" id="evTop">অনুষ্ঠানের অর্ডার</button>
+    <a class="btn ghost track-link" href="track.html" aria-label="অর্ডার ট্র্যাক করুন"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="tl">অর্ডার ট্র্যাক করুন</span></a>
     <a class="btn ghost call-m" id="callM" href="#">কল করুন</a>
-    <button class="btn cartbtn" id="openCart" aria-label="কার্ট খুলুন">কার্ট <span class="n" id="cartN">০</span></button>
+    <button class="btn cartbtn" id="openCart" aria-label="কার্ট খুলুন"><svg class="ci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.5 11h10L20 7H6.5"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></svg><span class="cw">কার্ট</span> <span class="n" id="cartN">০</span></button>
   </div>
 </header>
+<button class="evstrip" id="evTop2">অনুষ্ঠানের জন্য বড় অর্ডার দিন</button>
+</div>
 
 <main id="top">
   <section class="hero">
@@ -380,18 +414,6 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
     <button class="btn gold" id="evOpen">অনুষ্ঠানের অর্ডার দিন</button>
   </div></div></section>
 
-  <section class="track" id="track">
-    <div class="wrap">
-      <h2 id="trackTitle"></h2>
-      <p class="lead" id="trackLead"></p>
-      <form class="tform" id="tForm">
-        <input class="field" id="tNo" placeholder="যেমন NS-482913" autocomplete="off" inputmode="text" aria-label="অর্ডার নম্বর" required>
-        <button class="btn">ট্র্যাক করুন</button>
-      </form>
-      <div class="mine hidden" id="mine"></div>
-      <div class="tres" id="tRes" aria-live="polite"></div>
-    </div>
-  </section>
 </main>
 
 <footer>
@@ -408,7 +430,7 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
 <nav class="bnav" aria-label="নিচের মেনু">
   <a href="#top" data-n="top" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>হোম</a>
   <a href="#menu" data-n="menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17h18M5 17a7 7 0 0 1 14 0M2 21h20M12 6V4"/></svg>মেনু</a>
-  <a href="#track" data-n="track"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>ট্র্যাক</a>
+  <a href="track.html" data-n="track"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 22s7-7 7-12a7 7 0 0 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>ট্র্যাক</a>
   <button id="navCart" aria-label="কার্ট খুলুন"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.5 11h10L20 7H6.5"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></svg>কার্ট<span class="n hidden" id="navN"></span></button>
 </nav>
 <button class="cartbar hidden" id="cartBar"><span id="barL"></span><span>অর্ডার দেখুন</span></button>
@@ -464,7 +486,7 @@ function shell(){
   lastFree=Store.isFree(S);var fb=$('#freeBar');fb.classList.toggle('hidden',!lastFree);
   fb.textContent=lastFree?'ফ্রি হোম ডেলিভারি চলছে'+(!S.freeDelivery&&Number(S.freeUntil)?', '+Store.fullTime(Number(S.freeUntil))+' পর্যন্ত':'')+'।':'';
   $('#evTitle').textContent=S.evTitle;$('#evText').textContent=S.evText;
-  $('#trackTitle').textContent=S.trackTitle;$('#trackLead').textContent=S.trackLead;
+  offerUi();
   $('#callM').href=tel(S.phone);$('#callBtn').href=tel(S.phone);$('#callBtn').textContent='কল করুন '+S.phone;
   $('#fAbout').textContent=S.about;$('#fAddr').textContent=S.address;$('#fHours').textContent=S.hours;$('#fDeliv').textContent=S.deliveryNote;
   $('#fPhone').href=tel(S.phone);$('#fPhone').textContent=S.phone;
@@ -586,15 +608,15 @@ function openEvent(){
       customer:{name:name.slice(0,80),phone:phn,address:addr.slice(0,300),note:$('#evNote').value.trim().slice(0,300)},
       status:'pending',createdAt:now,updatedAt:now,history:[{status:'pending',at:now}]
     }).then(function(no){
-      mine=[no].concat(mine.filter(function(x){return x!==no})).slice(0,5);localStorage.setItem('nsfc_orders',JSON.stringify(mine));drawMine();
+      mine=[no].concat(mine.filter(function(x){return x!==no})).slice(0,5);localStorage.setItem('nsfc_orders',JSON.stringify(mine));
       B.innerHTML='<div class="okbox"><div class="tick"><svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 25l9 9 16-19"/></svg></div><p>আপনার অনুষ্ঠানের অর্ডার নম্বর</p><div class="big">'+esc(no)+'</div>'+
         '<p>অর্ডারটা পেয়েছি। দাম আর সময় চূড়ান্ত করতে আমরা শিগগিরই '+esc(phn)+' নম্বরে কল দেব।</p><button class="btn gold block" id="evTrack">অর্ডার ট্র্যাক করুন</button></div>';
-      $('#evTrack').onclick=function(){closeItem();track(no);location.hash='#track'};
+      $('#evTrack').onclick=function(){location.href='track.html?order='+encodeURIComponent(no)};
     }).catch(function(e){console.error(e);btn.disabled=false;btn.textContent='অনুষ্ঠানের অর্ডার পাঠান';
       er.textContent='অর্ডার পাঠানো যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন, অথবা কল করুন '+S.phone+'।';er.classList.remove('hidden')});
   };
 }
-$('#evOpen').onclick=openEvent;
+$('#evOpen').onclick=$('#evTop').onclick=$('#evTop2').onclick=openEvent;
 
 function card(p){
   return '<div class="pc'+(p.available?'':' out')+'"><div class="pic" data-item="'+esc(p.id)+'">'+(p.image?'<img loading="lazy" src="'+esc(p.image)+'" alt="'+esc(p.name)+'">':ICON)+'</div>'+
@@ -682,14 +704,17 @@ $('#dots').onclick=function(e){var b=e.target.closest('[data-s]');if(b)go(+b.dat
 })();
 
 /* ---------- স্ক্রল করলে চিপ ও নিচের মেনু আপডেট ---------- */
-var spyT=0;
+var spyT=0,SH=66;
+function stickH(){SH=$('#stick').offsetHeight;document.documentElement.style.setProperty('--stickH',SH+'px')}
+if(window.ResizeObserver)new ResizeObserver(stickH).observe($('#stick'));
+addEventListener('resize',stickH);stickH();
 function spy(){
-  var cur=null;document.querySelectorAll('.sec[id]').forEach(function(x){if(x.getBoundingClientRect().top<=140)cur=x.id});
-  if(cur&&$('#track').getBoundingClientRect().top>140)document.querySelectorAll('.chip').forEach(function(c){
+  var cur=null;document.querySelectorAll('.sec[id]').forEach(function(x){if(x.getBoundingClientRect().top<=SH+74)cur=x.id});
+  if(cur&&$('#event').getBoundingClientRect().top>SH+74)document.querySelectorAll('.chip').forEach(function(c){
     var on=c.getAttribute('href')==='#'+cur;
     if(on&&!c.classList.contains('on')){var w=c.parentNode;w.scrollTo({left:c.offsetLeft-w.clientWidth/2+c.offsetWidth/2,behavior:'smooth'})}
     c.classList.toggle('on',on)});
-  var h=innerHeight*.5,sec=$('#track').getBoundingClientRect().top<h?'track':$('#menu').getBoundingClientRect().top<h?'menu':'top';
+  var h=innerHeight*.5,sec=$('#menu').getBoundingClientRect().top<h?'menu':'top';
   document.querySelectorAll('.bnav [data-n]').forEach(function(a){a.classList.toggle('on',a.dataset.n===sec)});
 }
 addEventListener('scroll',function(){if(spyT)return;spyT=requestAnimationFrame(function(){spyT=0;spy()})},{passive:true});
@@ -698,10 +723,78 @@ addEventListener('scroll',function(){if(spyT)return;spyT=requestAnimationFrame(f
 function lines(){
   return Object.keys(cart).map(function(id){var p=prods.find(function(x){return x.id===id});return p&&p.available?{id:id,name:p.name,price:Number(p.price)||0,qty:cart[id]}:null}).filter(Boolean);
 }
+/* ---------- ছাড়ের অফার ---------- */
+var chk={phone:'',seen:null},lastOffer=false;
+function offerOn(){return Store.offerActive(S)}
+// অফারের ধরন: 'first' = যে ফোন নম্বরে আগে কখনো অর্ডার হয়নি; 'min' = নির্দিষ্ট টাকার বেশি অর্ডারে
+function firstOnly(){return S.offerFor==='first'}
+function minAmt(){return firstOnly()?0:Math.max(0,Number(S.offerMin)||0)}
+function condTxt(){
+  if(firstOnly())return 'প্রথম অর্ডারে';
+  return minAmt()?tk(minAmt())+' বা তার বেশি অর্ডারে':'সব অর্ডারে';
+}
+function discFor(sub){
+  if(!offerOn()||!sub)return 0;
+  if(firstOnly()){
+    var p=Store.phone(form.phone);
+    if(!/^01[3-9]\d{8}$/.test(p)||chk.phone!==p||chk.seen!==false)return 0;
+  }else if(sub<minAmt())return 0;
+  return Math.min(sub,Math.round(sub*Number(S.offerPct)/100));
+}
+function checkPhone(raw){
+  if(!offerOn()||!firstOnly())return;
+  var p=Store.phone(raw);
+  if(!/^01[3-9]\d{8}$/.test(p)){if(chk.phone){chk={phone:'',seen:null};footForm()}return}
+  if(chk.phone===p)return;
+  chk={phone:p,seen:null};footForm();
+  Store.phoneSeen(p).catch(function(){return true}).then(function(seen){if(chk.phone===p){chk.seen=!!seen;footForm()}});
+}
+function offerNote(t){
+  if(!offerOn()||t.disc)return '';
+  var pct=bn(Number(S.offerPct));
+  if(!firstOnly()){
+    var left=minAmt()-t.sub;
+    return left>0?'<p class="note disc">আর '+tk(left)+'-এর খাবার যোগ করলেই '+pct+'% ছাড় পাবেন।</p>':'';
+  }
+  if(step==='form'&&chk.phone&&chk.seen===true)return '<p class="note">এই নম্বরে আগে অর্ডার হয়েছে, তাই প্রথম অর্ডারের ছাড় এবার প্রযোজ্য নয়।</p>';
+  if(step==='form'&&chk.phone&&chk.seen===null)return '<p class="note">ছাড় মিলিয়ে দেখা হচ্ছে…</p>';
+  return '<p class="note disc">প্রথম অর্ডারে '+pct+'% ছাড়। আগে অর্ডার না করা মোবাইল নম্বর দিলে ছাড় নিজে থেকে বসে যাবে।</p>';
+}
+function untilTxt(){return Number(S.offerUntil)?'অফার চলবে '+Store.fullTime(Number(S.offerUntil))+' পর্যন্ত।':''}
+function offerUi(){
+  var on=offerOn(),bar=$('#offerBar');lastOffer=on;
+  bar.classList.toggle('hidden',!on);
+  if(on)bar.innerHTML=esc(S.offerTitle||'ছাড় চলছে')+': '+esc(condTxt())+' <b>'+bn(Number(S.offerPct))+'% ছাড়</b>'+(Number(S.offerUntil)?', '+esc(Store.time(Number(S.offerUntil)))+' পর্যন্ত':'');
+  if(!on){clearTimeout(offTimer);var old=$('#offer');if(old)old.remove();return}
+  if(!offShown){offShown=true;showOffer()}
+}
+var offTimer=null,offShown=false;
+function offerGone(){try{return sessionStorage.getItem('nsfc_offer_go')==='1'}catch(e){return false}}
+function schedOffer(sec){
+  clearTimeout(offTimer);var n=sec||Number(S.offerEvery)||0;
+  if(n>0)offTimer=setTimeout(showOffer,Math.max(5,n)*1000);
+}
+function showOffer(){
+  if(!offerOn()||offerGone()||$('#offer'))return;
+  // কার্ট, চেকআউট বা কোনো আইটেম খোলা থাকলে তখন বিরক্ত করে না, একটু পরে আবার চেষ্টা করে
+  if($('#drawer').classList.contains('on')||!$('#pm').classList.contains('hidden')){schedOffer(6);return}
+  var o=document.createElement('div');o.className='pm off';o.id='offer';
+  o.innerHTML='<div class="offbox" role="dialog" aria-modal="true" aria-label="ছাড়ের অফার"><button class="x" data-ox aria-label="বন্ধ করুন">×</button>'+
+    '<div class="offpct">'+bn(Number(S.offerPct))+'%<small>ছাড়</small></div><div class="offcond">'+esc(condTxt())+'</div><h2>'+esc(S.offerTitle||'ছাড় চলছে')+'</h2>'+(S.offerText?'<p>'+esc(S.offerText)+'</p>':'')+
+    (untilTxt()?'<p class="note">'+esc(untilTxt())+'</p>':'')+'<button class="btn gold block" id="offGo">অর্ডার করুন</button></div>';
+  document.body.appendChild(o);
+  o.onclick=function(e){
+    if(e.target.closest('#offGo')){try{sessionStorage.setItem('nsfc_offer_go','1')}catch(er){}o.remove();clearTimeout(offTimer);$('#menu').scrollIntoView()}
+    else if(e.target===o||e.target.closest('[data-ox]')){o.remove();schedOffer()}
+  };
+}
+setInterval(function(){if(offerOn()!==lastOffer){offerUi();drawCart()}},30000);
+
 function totals(){
   var l=lines(),sub=l.reduce(function(s,i){return s+i.price*i.qty},0);
   var del=(form.type==='delivery'&&!Store.isFree(S)&&l.length)?Number(S.deliveryCharge)||0:0;
-  return {lines:l,count:l.reduce(function(s,i){return s+i.qty},0),sub:sub,del:del,total:sub+del};
+  var disc=discFor(sub);
+  return {lines:l,count:l.reduce(function(s,i){return s+i.qty},0),sub:sub,del:del,disc:disc,total:sub-disc+del};
 }
 function save(){localStorage.setItem('nsfc_cart',JSON.stringify(cart))}
 function change(id,d){
@@ -722,8 +815,9 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeD()});
 
 function sums(t){
   return '<div class="sum"><span>খাবারের দাম</span><span>'+tk(t.sub)+'</span></div>'+
+    (t.disc?'<div class="sum disc"><span>'+esc(S.offerTitle||'ছাড়')+' ('+bn(Number(S.offerPct))+'%)</span><span>−'+tk(t.disc)+'</span></div>':'')+
     (form.type==='delivery'?'<div class="sum"><span>ডেলিভারি চার্জ</span><span>'+(t.del?tk(t.del):'ফ্রি')+'</span></div>':'')+
-    '<div class="sum total"><span>মোট</span><span>'+tk(t.total)+'</span></div>';
+    '<div class="sum total"><span>'+(t.disc?'ছাড়ের পর পরিশোধ':'মোট')+'</span><span>'+tk(t.total)+'</span></div>';
 }
 function drawCart(){
   if(step==='form'&&!$('.cook'))grab();
@@ -745,7 +839,7 @@ function drawCart(){
       '<button class="btn ghost block" id="copyNo">নম্বর কপি করুন</button>'+
       (wa?'<a class="btn ghost block" target="_blank" rel="noopener" href="https://wa.me/'+wa+'?text='+encodeURIComponent('আমি অর্ডার দিয়েছি। অর্ডার নম্বর: '+lastNo)+'">হোয়াটসঅ্যাপে জানান</a>':'')+'</div>';
     F.innerHTML='';
-    $('#goTrack').onclick=function(){closeD();track(lastNo);location.hash='#track'};
+    $('#goTrack').onclick=function(){location.href='track.html?order='+encodeURIComponent(lastNo)};
     $('#copyNo').onclick=function(){(navigator.clipboard?navigator.clipboard.writeText(lastNo):Promise.reject()).then(function(){toast('কপি হয়েছে')},function(){toast(lastNo)})};
     return;
   }
@@ -761,7 +855,7 @@ function drawCart(){
       return '<div class="row"><div class="info"><div class="nm">'+esc(i.name)+'</div><div class="ds">'+tk(i.price)+' × '+bn(i.qty)+'</div></div><div class="pr">'+tk(i.price*i.qty)+'</div>'+
       '<span class="qty"><button data-dec="'+esc(i.id)+'" aria-label="কমান">−</button><span>'+bn(i.qty)+'</span><button data-add="'+esc(i.id)+'" aria-label="বাড়ান">+</button></span></div>'}).join('');
     var min=Number(S.minOrder)||0, low=t.sub<min;
-    F.innerHTML=sums(t)+(S.shopOpen?(low?'<p class="err">কমপক্ষে '+tk(min)+' টাকার অর্ডার দিতে হবে।</p>':''):'<p class="err">'+esc(S.closedMessage)+'</p>')+
+    F.innerHTML=sums(t)+offerNote(t)+(S.shopOpen?(low?'<p class="err">কমপক্ষে '+tk(min)+' টাকার অর্ডার দিতে হবে।</p>':''):'<p class="err">'+esc(S.closedMessage)+'</p>')+
       '<button class="btn block" id="toForm"'+((!S.shopOpen||low)?' disabled':'')+'>ঠিকানা দিন</button>';
     $('#toForm').onclick=function(){step='form';drawCart()};
     return;
@@ -779,8 +873,14 @@ function drawCart(){
     '<label class="l" for="fO">বাড়তি কিছু বলার থাকলে</label><input class="field" id="fO" placeholder="যেমন: ঝাল কম" value="'+esc(form.note)+'">'+
     '<p class="note">পেমেন্ট: খাবার হাতে পেয়ে নগদ টাকা'+(S.bkash?' অথবা বিকাশ '+esc(S.bkash):'')+'।</p>'+
     '<p class="err hidden" id="oErr"></p></form>';
-  F.innerHTML=sums(t)+'<button class="btn block" id="place">অর্ডার দিন</button><button class="btn ghost block" id="back" style="margin-top:8px">কার্টে ফিরে যান</button>';
   B.querySelectorAll('input[name=type]').forEach(function(r){r.onchange=function(){grab();form.type=r.value;drawCart()}});
+  B.oninput=function(e){if(e.target.id==='fP')checkPhone(e.target.value)};
+  footForm();checkPhone(form.phone);
+}
+function footForm(){
+  if(step!=='form'||!$('#fN'))return;
+  grab();var t=totals(),F=$('#dFoot');
+  F.innerHTML=sums(t)+offerNote(t)+'<button class="btn block" id="place">অর্ডার দিন</button><button class="btn ghost block" id="back" style="margin-top:8px">কার্টে ফিরে যান</button>';
   $('#back').onclick=function(){grab();step='cart';drawCart()};
   $('#place').onclick=place;
 }
@@ -800,69 +900,30 @@ function place(){
   else if(form.type==='delivery'&&form.address.length<5) msg='ডেলিভারির পুরো ঠিকানা লিখুন।';
   if(msg){er.textContent=msg;er.classList.remove('hidden');return}
   er.classList.add('hidden');
-  var now=Date.now(),t0=totals();
+  var now=Date.now(),wait=new Promise(function(r){setTimeout(r,2600)});
   step='sending';drawCart();
-  Promise.all([new Promise(function(r){setTimeout(r,2600)}),Store.placeOrder({
+  var need=offerOn()&&firstOnly();
+  (need?Store.phoneSeen(ph).catch(function(){return true}):Promise.resolve(false)).then(function(seen){
+  chk={phone:ph,seen:!!seen};form.phone=ph;var t0=totals();
+  return Promise.all([wait,Store.placeOrder({
     items:t0.lines,subtotal:t0.sub,delivery:t0.del,total:t0.total,type:form.type,payment:'cod',
+    discount:t0.disc?{amount:t0.disc,pct:Number(S.offerPct),title:String(S.offerTitle||'').slice(0,80),first:firstOnly()}:null,
     customer:{name:form.name.slice(0,80),phone:ph,address:form.type==='delivery'?form.address.slice(0,300):'',note:form.note.slice(0,300)},
     status:'pending',createdAt:now,updatedAt:now,history:[{status:'pending',at:now}]
-  })]).then(function(r){
+  })])}).then(function(r){
     var no=r[1];lastNo=no;cart={};save();
     localStorage.setItem('nsfc_me',JSON.stringify({name:form.name,phone:ph,address:form.address,type:form.type}));
     mine=[no].concat(mine.filter(function(x){return x!==no})).slice(0,5);localStorage.setItem('nsfc_orders',JSON.stringify(mine));
-    form.note='';step='done';menu();drawCart();drawMine();
+    form.note='';step='done';menu();drawCart();
   }).catch(function(e){
     console.error(e);step='form';drawCart();er=$('#oErr');
     er.textContent='অর্ডার পাঠানো যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন, অথবা কল করুন '+S.phone+'।';er.classList.remove('hidden');
   });
 }
 
-/* ---------- ট্র্যাকিং ---------- */
-var SV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
-var TI={
-  pending:SV+'<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9.5 4h5v2.6h-5zM9 11h6M9 15h4"/></svg>',
-  confirmed:SV+'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>',
-  preparing:SV+'<path d="M3 18h18M5 18a7 7 0 0 1 14 0M2 21h20"/><path class="stm" d="M9 7.5q-1.5-2 0-4M12 7.5q-1.5-2 0-4M15 7.5q-1.5-2 0-4"/></svg>',
-  ontheway:SV+'<circle cx="5.5" cy="18" r="2.6"/><circle cx="18.5" cy="18" r="2.6"/><path d="M8.1 18h7.8M15.9 18l-1.6-7h2.4M5.5 15.4c.2-2 1.6-3.2 3.6-3.2h3.4l1.8 3.2"/><rect x="2.5" y="7.2" width="5.6" height="5" rx="1"/><circle cx="12" cy="4.6" r="1.7"/><path d="M12 6.6l-.6 3.4 2.9 1"/></svg>',
-  bag:SV+'<path d="M5 8h14l-1.2 13H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8M9.5 13.5l2 2 3.5-4"/></svg>',
-  delivered:SV+'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M8.5 14.5l2.5 2.5 4.5-5"/></svg>',
-  cancelled:SV+'<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>'
-};
-function tIcon(st,type){return TI[(type==='pickup'&&st==='ontheway')?'bag':st]||TI.pending}
-function tScene(st,type){
-  var cls=st==='ontheway'?(type==='pickup'?'wait':'ride'):(st==='confirmed'||st==='delivered'||st==='cancelled')?'pop':'wait';
-  return '<div class="tscene '+cls+'">'+tIcon(st,type)+'</div>';
-}
-var unsub=null;
-function drawMine(){
-  var m=$('#mine');m.classList.toggle('hidden',!mine.length);
-  m.innerHTML='আপনার আগের অর্ডার: '+mine.map(function(n){return '<button type="button" data-no="'+esc(n)+'">'+esc(n)+'</button>'}).join('');
-}
-$('#mine').onclick=function(e){var b=e.target.closest('[data-no]');if(b)track(b.dataset.no)};
-$('#tForm').onsubmit=function(e){e.preventDefault();track($('#tNo').value)};
-function track(raw){
-  var no=Store.normNo(raw),R=$('#tRes');
-  $('#tNo').value=no;if(unsub){unsub();unsub=null}
-  if(!/^NS-\d{6}$/.test(no)){R.innerHTML='<p class="bad">অর্ডার নম্বর এমন হবে: NS-482913। নম্বরটা মিলিয়ে আবার লিখুন।</p>';return}
-  R.innerHTML='<p class="lead">খোঁজা হচ্ছে…</p>';
-  unsub=Store.watchTracking(no,function(o){
-    if(!o){R.innerHTML='<p class="bad">'+esc(no)+' নম্বরে কোনো অর্ডার পাওয়া যায়নি। নম্বরটা মিলিয়ে দেখুন।</p>';return}
-    var at={};(o.history||[]).forEach(function(h){at[h.status]=h.at});
-    var cancelled=o.status==='cancelled',idx=Store.FLOW.indexOf(o.status);
-    var steps=Store.FLOW.map(function(s,i){
-      var cls=cancelled?'':(i<idx?'done':i===idx?(s==='delivered'?'done cur':'cur'):'');
-      return '<li class="'+cls+'"><span class="ic">'+tIcon(s,o.type)+'</span>'+esc(Store.statusLabel(s,o.type))+(at[s]&&i<=idx?'<time>'+esc(Store.time(at[s]))+'</time>':'')+'</li>'}).join('');
-    R.innerHTML='<div class="tcard"><div class="no">'+esc(o.orderNo)+'</div>'+
-      '<div class="now'+(cancelled?' bad':'')+'">'+(cancelled?'অর্ডারটি বাতিল হয়েছে':esc(Store.statusLabel(o.status,o.type)))+'</div>'+
-      tScene(o.status,o.type)+
-      (cancelled?'<p class="lead">কোনো প্রশ্ন থাকলে কল করুন '+esc(S.phone)+'।</p>':'<ol class="steps">'+steps+'</ol>')+
-      '<div class="tsum">'+(o.items||[]).map(function(i){return esc(i.name)+' × '+bn(i.qty)}).join(', ')+
-      '<br><b>মোট '+tk(o.total)+'</b> ('+(o.type==='pickup'?'দোকান থেকে নেবেন':'হোম ডেলিভারি')+')</div></div>';
-  });
-}
-drawMine();drawCart();shell();
+drawCart();shell();
 var q=new URLSearchParams(location.search).get('order');
-if(q){track(q);setTimeout(function(){$('#track').scrollIntoView()},300)}
+if(q)location.replace('track.html?order='+encodeURIComponent(q));
 })();
 </script>
 </body>

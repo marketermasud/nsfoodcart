@@ -36,6 +36,13 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // কোন ফোন নম্বরে আগে অর্ডার হয়েছে (প্রথম অর্ডারের ছাড়ের জন্য): নম্বর জানা থাকলে শুধু সেটা আছে কি না দেখা যায়, তালিকা নয়
+    match /phones/{phone} {
+      allow get: if true;
+      allow create, update: if request.resource.data.keys().hasOnly(['at']) && request.resource.data.at is number;
+      allow list, delete: if isAdmin();
+    }
+
     // ট্র্যাকিং (ব্যক্তিগত তথ্য ছাড়া): অর্ডার নম্বর জানলে যে কেউ একটা অর্ডারের অবস্থা দেখতে পারবে, তালিকা নয়
     match /tracking/{id} {
       allow get: if true;

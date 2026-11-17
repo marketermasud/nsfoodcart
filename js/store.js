@@ -21,6 +21,15 @@
     facebook: 'https://www.facebook.com/nsfoodcart',
     deliveryCharge: 20,
     freeDelivery: false,
+    offerOn: false,
+    offerTitle: 'প্রথম অর্ডারে ছাড়',
+    offerText: 'প্রথমবার অর্ডার করলেই খাবারের দামে ছাড়। অর্ডারের সময় মোবাইল নম্বর দিলে ছাড় নিজে থেকে বসে যাবে।',
+    offerPct: 10,
+    offerFor: 'first',
+    offerMin: 500,
+    offerEvery: 20,
+    offerFrom: 0,
+    offerUntil: 0,
     freeFrom: 0,
     freeUntil: 0,
     minOrder: 0,
@@ -96,7 +105,7 @@
     return {
       orderNo: o.orderNo, status: o.status, type: o.type,
       items: o.items.map(function (i) { return { name: i.name, qty: i.qty, price: i.price }; }),
-      subtotal: o.subtotal, delivery: o.delivery, total: o.total,
+      subtotal: o.subtotal, delivery: o.delivery, discount: o.discount ? Number(o.discount.amount) || 0 : 0, total: o.total,
       createdAt: o.createdAt, updatedAt: o.createdAt, history: o.history
     };
   }
@@ -104,7 +113,7 @@
   function pubPatch(data, now) {
     return {
       items: data.items.map(function (i) { return { name: i.name, qty: i.qty, price: i.price }; }),
-      subtotal: data.subtotal, delivery: data.delivery, total: data.total, type: data.type, updatedAt: now
+      subtotal: data.subtotal, delivery: data.delivery, discount: data.discount ? Number(data.discount.amount) || 0 : 0, total: data.total, type: data.type, updatedAt: now
     };
   }
 
@@ -162,9 +171,29 @@
           var b = db.batch();
           b.set(db.doc('orders/' + no), o);
           b.set(db.doc('tracking/' + no), publicPart(o));
-          try { await b.commit(); return no; } catch (e) { lastErr = e; if (e.code !== 'permission-denied') break; }
+          var cp = Store.phone((o.customer || {}).phone);
+          try {
+            await b.commit();
+            // আলাদা করে লেখা হয়, যাতে এটা ব্যর্থ হলেও অর্ডার আটকে না যায়
+            if (/^01\d{9}$/.test(cp)) db.doc('phones/' + cp).set({ at: o.createdAt || Date.now() }).catch(function (e) { console.warn('phones', e); });
+            return no;
+          } catch (e) { lastErr = e; if (e.code !== 'permission-denied') break; }
         }
         throw lastErr;
+      },
+      // এই ফোন নম্বরে আগে অর্ডার হয়েছে কি না (প্রথম অর্ডারের ছাড়ের জন্য)
+      phoneSeen: function (p) { return db.doc('phones/' + p).get().then(function (s) { return s.exists; }); },
+      backfillPhones: async function (list) {
+        var st = await db.doc('settings/site').get();
+        if ((st.data() || {}).phonesDone) return;
+        var seen = {}, all = [];
+        list.forEach(function (o) { var p = Store.phone((o.customer || {}).phone); if (/^01\d{9}$/.test(p) && !seen[p]) { seen[p] = 1; all.push([p, o.createdAt || 0]); } });
+        for (var i = 0; i < all.length; i += 400) {
+          var b = db.batch();
+          all.slice(i, i + 400).forEach(function (x) { b.set(db.doc('phones/' + x[0]), { at: x[1] }); });
+          await b.commit();
+        }
+        await db.doc('settings/site').set({ phonesDone: true }, { merge: true });
       },
       watchTracking: function (no, cb) {
         return db.doc('tracking/' + no).onSnapshot(function (s) { cb(s.exists ? s.data() : null); }, function () { cb(null); });
@@ -266,6 +295,10 @@
         var o = Object.assign({}, order, { orderNo: no });
         d.orders[no] = o; d.tracking[no] = publicPart(o); write(d); return ok(no);
       },
+      phoneSeen: function (p) {
+        var d = read();
+        return ok(Object.keys(d.orders).some(function (k) { return Store.phone((d.orders[k].customer || {}).phone) === p; }));
+      },
       watchTracking: function (no, cb) { return sub(function (d) { return d.tracking[no] || null; }, cb); },
       watchOrders: function (cb) {
         return sub(function (d) {
@@ -318,6 +351,14 @@
     var n = Date.now(), f = Number(S.freeFrom) || 0, u = Number(S.freeUntil) || 0;
     if (!f && !u) return false;
     return (!f || n >= f) && (!u || n < u);
+  };
+  function inWin(from, until) {
+    var n = Date.now(), f = Number(from) || 0, u = Number(until) || 0;
+    return (!f || n >= f) && (!u || n < u);
+  }
+  // ছাড়ের অফার এখন চলছে কি না: চালু করা আছে, দোকান অর্ডার নিচ্ছে, আর এখনকার সময় শুরু-শেষের ভেতরে
+  Store.offerActive = function (S) {
+    return !!(S.offerOn && S.shopOpen && Number(S.offerPct) > 0 && Number(S.offerPct) <= 100 && inWin(S.offerFrom, S.offerUntil));
   };
   Store.esc = function (s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
