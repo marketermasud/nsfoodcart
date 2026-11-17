@@ -31,6 +31,8 @@
     f2t: 'আটঘরিয়ায় হোম ডেলিভারি', f2d: 'অর্ডার দিন, আমরা বাড়িতে পৌঁছে দিই।',
     f3t: 'হাতে পেয়ে টাকা দিন', f3d: 'আগে কোনো টাকা লাগে না, খাবার বুঝে নিয়ে দাম দিন।',
     nowLabel: 'এই মুহূর্তে চলছে',
+    evTitle: 'অনুষ্ঠানের জন্য বড় অর্ডার',
+    evText: 'বিয়ে, জন্মদিন, মিলাদ বা অফিসের আয়োজন। মেনু থেকে আইটেম আর প্যাকেটের সংখ্যা বেছে আগাম অর্ডার দিন।',
     trackTitle: 'অর্ডার কোথায় আছে দেখুন',
     trackLead: 'অর্ডার দেওয়ার পর যে নম্বর পেয়েছেন, সেটা লিখুন।',
     about: 'NS Food Cart — পারখিদিরপুর বাজারের ছোট্ট ফুড কার্ট। সকালের নাস্তা থেকে বিকালের ভাজাপোড়া, সবই প্রতিদিন নতুন করে রান্না হয়।'
@@ -166,14 +168,14 @@
         return db.doc('tracking/' + no).onSnapshot(function (s) { cb(s.exists ? s.data() : null); }, function () { cb(null); });
       },
       watchOrders: function (cb, onErr) {
-        return db.collection('orders').orderBy('createdAt', 'desc').limit(400).onSnapshot(function (s) {
+        return db.collection('orders').orderBy('createdAt', 'desc').limit(2000).onSnapshot(function (s) {
           cb(s.docs.map(function (d) { return d.data(); }));
         }, function (e) { console.error(e); if (onErr) onErr(e); });
       },
-      setStatus: function (no, status) {
+      setStatus: function (no, status, extra) {
         var now = Date.now(), b = db.batch();
         var upd = { status: status, updatedAt: now, history: FV.arrayUnion({ status: status, at: now }) };
-        b.update(db.doc('orders/' + no), upd);
+        b.update(db.doc('orders/' + no), Object.assign({}, upd, extra || {}));
         b.set(db.doc('tracking/' + no), upd, { merge: true });
         return b.commit();
       },
@@ -268,11 +270,12 @@
           return Object.keys(d.orders).map(function (k) { return d.orders[k]; }).sort(function (a, b) { return b.createdAt - a.createdAt; });
         }, cb);
       },
-      setStatus: function (no, status) {
+      setStatus: function (no, status, extra) {
         var d = read(), now = Date.now();
         [d.orders[no], d.tracking[no]].forEach(function (o) {
           if (!o) return; o.status = status; o.updatedAt = now; o.history = (o.history || []).concat([{ status: status, at: now }]);
         });
+        if (extra && d.orders[no]) Object.assign(d.orders[no], extra);
         write(d); return ok();
       },
       updateOrder: function (no, data) {
@@ -299,6 +302,14 @@
   Store.FLOW = FLOW;
   Store.statusLabel = statusLabel;
   Store.normNo = normNo;
+  // ফোন নম্বর এক ফরম্যাটে আনে: +880 17..., 88017..., ০১৭... সবই 017XXXXXXXX
+  Store.phone = function (s) {
+    var bn = '০১২৩৪৫৬৭৮৯';
+    var d = String(s == null ? '' : s).replace(/[০-৯]/g, function (c) { return bn.indexOf(c); }).replace(/\D/g, '');
+    if (d.length === 13 && d.indexOf('880') === 0) d = d.slice(2);
+    if (d.length === 10 && d.charAt(0) === '1') d = '0' + d;
+    return d;
+  };
   Store.esc = function (s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];

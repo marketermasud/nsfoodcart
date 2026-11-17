@@ -6,18 +6,20 @@
 <title>NS Food Cart | গরম গরম তেহারি, নাস্তা ও জুস, অনলাইনে অর্ডার করুন</title>
 <meta name="description" content="বিফ তেহারি, চিকেন ফ্রাই, ফ্রেঞ্চ ফ্রাই আর ঠান্ডা জুস, দাম শুরু মাত্র ১০ টাকা থেকে। মোবাইল থেকেই অর্ডার দিন, আটঘরিয়ায় হোম ডেলিভারি নিন, টাকা দিন খাবার হাতে পেয়ে।">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://nsfoodcart.shop/">
+<link rel="canonical" href="https://nsfoodcart.shop/">
 <meta property="og:site_name" content="NS Food Cart">
 <meta property="og:locale" content="bn_BD">
 <meta property="og:title" content="NS Food Cart | গরম গরম তেহারি, নাস্তা ও জুস, অনলাইনে অর্ডার করুন">
 <meta property="og:description" content="বিফ তেহারি, চিকেন ফ্রাই, ফ্রেঞ্চ ফ্রাই আর ঠান্ডা জুস, দাম শুরু মাত্র ১০ টাকা থেকে। মোবাইল থেকেই অর্ডার দিন, আটঘরিয়ায় হোম ডেলিভারি নিন, টাকা দিন খাবার হাতে পেয়ে।">
-<meta property="og:image" content="icons/share.jpg">
+<meta property="og:image" content="https://nsfoodcart.shop/icons/share.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="NS Food Cart — Fresh Food, Happy Mood">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="NS Food Cart | গরম গরম তেহারি, নাস্তা ও জুস, অনলাইনে অর্ডার করুন">
 <meta name="twitter:description" content="বিফ তেহারি, চিকেন ফ্রাই, ফ্রেঞ্চ ফ্রাই আর ঠান্ডা জুস, দাম শুরু মাত্র ১০ টাকা থেকে। মোবাইল থেকেই অর্ডার দিন, আটঘরিয়ায় হোম ডেলিভারি নিন, টাকা দিন খাবার হাতে পেয়ে।">
-<meta name="twitter:image" content="icons/share.jpg">
+<meta name="twitter:image" content="https://nsfoodcart.shop/icons/share.jpg">
 <meta name="theme-color" content="#140b0b">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -228,6 +230,19 @@ footer a{color:var(--cream)}
 .pick{display:flex;gap:2px}
 .pick button{background:none;border:0;font-size:36px;line-height:1;color:var(--line);padding:2px 5px}
 .pick button.on{color:var(--gold)}
+/* অনুষ্ঠানের অর্ডার */
+.event{padding:44px 0 0}
+.evbox{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:26px 28px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(120deg,#5a1215,#2a1213 55%,var(--coal-2))}
+.evbox h2{font-size:30px}
+.evbox p{color:#e6d5c8;margin:6px 0 0;max-width:36em}
+.evlist{max-height:42dvh;overflow:auto;border:1px solid var(--line);border-radius:14px;padding:0 12px;margin:14px 0 10px}
+.evlist .row:first-child{border-top:0}
+.evq{display:flex;align-items:center;gap:4px;flex:none}
+.evq button{width:40px;height:42px;border-radius:10px;border:1.5px solid var(--line);background:none;font-size:21px;line-height:1}
+.evq input{width:60px;text-align:center;min-height:42px;padding:4px;border-radius:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g2>div{min-width:0}
+.field{color-scheme:dark}
 /* মোবাইলের নিচের মেনু */
 .bnav,.call-m{display:none}
 /* কার্ট বার + ড্রয়ার */
@@ -292,6 +307,9 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
   .drawer{top:auto;height:92dvh;width:100%;border-left:0;border-top:1px solid var(--line);border-radius:20px 20px 0 0;transform:translateY(102%)}
 }
 @media (max-width:820px){
+  .g2{grid-template-columns:1fr;gap:0}
+  .evbox{padding:22px 20px}.evbox h2{font-size:26px}.evbox .btn{width:100%}
+  .evq button{width:36px}.evq input{width:52px}
   .pm{place-items:end center;padding:0}
   .pmbox{border-radius:20px 20px 0 0;max-height:92dvh;border-width:1px 0 0}
   .bnav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:45;background:#0c0606;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
@@ -356,6 +374,11 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
 
   <section class="menu" id="menu"><div class="wrap" id="menuBody"></div></section>
 
+  <section class="event" id="event"><div class="wrap"><div class="evbox">
+    <div><h2 id="evTitle"></h2><p id="evText"></p></div>
+    <button class="btn gold" id="evOpen">অনুষ্ঠানের অর্ডার দিন</button>
+  </div></div></section>
+
   <section class="track" id="track">
     <div class="wrap">
       <h2 id="trackTitle"></h2>
@@ -377,7 +400,7 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
       <div><h3>ঠিকানা ও সময়</h3><p id="fAddr"></p><p id="fHours"></p><p id="fDeliv"></p></div>
       <div><h3>যোগাযোগ</h3><p><a id="fPhone" href="#"></a></p><p><a id="fWa" href="#" target="_blank" rel="noopener">হোয়াটসঅ্যাপে মেসেজ দিন</a></p><p><a id="fFb" href="#" target="_blank" rel="noopener">ফেসবুক পেজ</a></p></div>
     </div>
-    <div class="copy"><span>© <span id="yr"></span> <span id="cName">NS Food Cart</span></span><a href="admin.html">অ্যাডমিন লগইন</a></div>
+    <div class="copy"><span>© <span id="yr"></span> <span id="cName">NS Food Cart</span></span></div>
   </div>
 </footer>
 
@@ -435,6 +458,7 @@ function shell(){
   var cb=$('#closedBar');cb.classList.toggle('hidden',!!S.shopOpen);cb.textContent='অর্ডার বন্ধ। '+(S.closedMessage||'');
   $('#feats').innerHTML=[[S.f1t,S.f1d,FI[0]],[S.f2t,S.f2d,FI[1]],[S.f3t,S.f3d,FI[2]]].filter(function(f){return f[0]}).map(function(f){
     return '<div class="feat">'+f[2]+'<div><b>'+esc(f[0])+'</b><span>'+esc(f[1])+'</span></div></div>'}).join('');
+  $('#evTitle').textContent=S.evTitle;$('#evText').textContent=S.evText;
   $('#trackTitle').textContent=S.trackTitle;$('#trackLead').textContent=S.trackLead;
   $('#callM').href=tel(S.phone);$('#callBtn').href=tel(S.phone);$('#callBtn').textContent='কল করুন '+S.phone;
   $('#fAbout').textContent=S.about;$('#fAddr').textContent=S.address;$('#fHours').textContent=S.hours;$('#fDeliv').textContent=S.deliveryNote;
@@ -465,7 +489,7 @@ function openItem(id){
   pmCtl();pmRevs();pmForm();
 }
 function closeItem(){
-  if(!openId)return;openId=null;$('#pm').classList.add('hidden');$('#pm').innerHTML='';
+  if($('#pm').classList.contains('hidden'))return;openId=null;$('#pm').classList.add('hidden');$('#pm').innerHTML='';
   if(!$('#drawer').classList.contains('on'))document.body.style.overflow='';
 }
 function pmCtl(){
@@ -511,6 +535,62 @@ document.addEventListener('keydown',function(e){
   if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[data-item]')){e.preventDefault();openItem(e.target.dataset.item)}
 });
 
+/* ---------- অনুষ্ঠানের অর্ডার ---------- */
+var evQ={};
+function evTotal(){return prods.reduce(function(s,p){return s+(Number(p.price)||0)*(evQ[p.id]||0)},0)}
+function openEvent(){
+  openId=null;evQ={};
+  var list=[];cats.forEach(function(c){prods.forEach(function(p){if(p.category===c.id&&p.available)list.push(p)})});
+  prods.forEach(function(p){if(p.available&&list.indexOf(p)<0)list.push(p)});
+  var today=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+  $('#pm').innerHTML='<div class="pmbox" role="dialog" aria-modal="true" aria-label="অনুষ্ঠানের অর্ডার"><button class="x" data-pmx aria-label="বন্ধ করুন">×</button><div class="pmbody" id="evBody">'+
+    '<h2>অনুষ্ঠানের অর্ডার</h2><p class="ds">কোন আইটেম কত প্যাকেট লাগবে লিখুন। চূড়ান্ত দাম আর সময় আমরা ফোনে কনফার্ম করব।</p>'+
+    '<div class="evlist">'+list.map(function(p){
+      return '<div class="row">'+(p.image?'<img class="thumb" loading="lazy" src="'+esc(p.image)+'" alt="">':'<span class="thumb ph">'+ICON+'</span>')+
+        '<div class="info"><div class="nm">'+esc(p.name)+'</div><div class="ds">'+tk(p.price)+' প্রতিটি</div></div>'+
+        '<span class="evq"><button type="button" data-ev="-1" aria-label="কমান">−</button><input class="field" type="number" inputmode="numeric" min="0" max="5000" value="0" data-evid="'+esc(p.id)+'" aria-label="'+esc(p.name)+' কত প্যাকেট"><button type="button" data-ev="1" aria-label="বাড়ান">+</button></span></div>'}).join('')+'</div>'+
+    '<div class="sum total"><span>আনুমানিক মোট</span><span id="evTot">'+tk(0)+'</span></div>'+
+    '<div class="g2"><div><label class="l" for="evDate">অনুষ্ঠানের তারিখ</label><input class="field" type="date" id="evDate" min="'+today+'"></div>'+
+    '<div><label class="l" for="evTime">কখন লাগবে</label><input class="field" type="time" id="evTime"></div></div>'+
+    '<label class="l" for="evGuests">কতজনের আয়োজন (ঐচ্ছিক)</label><input class="field" id="evGuests" inputmode="numeric" placeholder="যেমন: ৫০">'+
+    '<label class="l" for="evName">আপনার নাম</label><input class="field" id="evName" autocomplete="name" value="'+esc(form.name)+'">'+
+    '<label class="l" for="evPhone">মোবাইল নম্বর</label><input class="field" id="evPhone" inputmode="tel" autocomplete="tel" placeholder="01XXXXXXXXX" value="'+esc(form.phone)+'">'+
+    '<label class="l" for="evAddr">কোথায় পৌঁছে দিতে হবে</label><textarea class="field" id="evAddr" rows="2" placeholder="গ্রাম/মহল্লা, বাড়ি, কাছের পরিচিত জায়গা">'+esc(form.address)+'</textarea>'+
+    '<label class="l" for="evNote">বাড়তি কিছু বলার থাকলে</label><input class="field" id="evNote" placeholder="যেমন: আলাদা প্যাকেটে দিন">'+
+    '<p class="err hidden" id="evErr"></p><button class="btn block" id="evSend" style="margin-top:14px">অনুষ্ঠানের অর্ডার পাঠান</button>'+
+    '<p class="note">পেমেন্ট: খাবার বুঝে নিয়ে নগদ টাকা। বড় অর্ডারে আমরা আগে ফোন করে নিশ্চিত হই।</p></div></div>';
+  $('#pm').classList.remove('hidden');document.body.style.overflow='hidden';
+  var B=$('#evBody');
+  function sync(inp){var v=Math.max(0,Math.min(5000,Math.floor(Number(inp.value)||0)));if(v)evQ[inp.dataset.evid]=v;else delete evQ[inp.dataset.evid];$('#evTot').textContent=tk(evTotal())}
+  B.addEventListener('input',function(e){if(e.target.dataset.evid)sync(e.target)});
+  B.addEventListener('click',function(e){var b=e.target.closest('[data-ev]');if(!b)return;var inp=b.parentNode.querySelector('input');inp.value=Math.max(0,(Number(inp.value)||0)+Number(b.dataset.ev));sync(inp)});
+  $('#evSend').onclick=function(){
+    var er=$('#evErr'),btn=this,name=$('#evName').value.trim(),phn=Store.phone($('#evPhone').value),addr=$('#evAddr').value.trim(),date=$('#evDate').value,msg='';
+    var lines=prods.filter(function(p){return evQ[p.id]}).map(function(p){return {id:p.id,name:p.name,price:Number(p.price)||0,qty:evQ[p.id]}});
+    if(!lines.length)msg='কমপক্ষে একটা আইটেমে প্যাকেটের সংখ্যা লিখুন।';
+    else if(!date)msg='অনুষ্ঠানের তারিখ বেছে নিন।';
+    else if(date<today)msg='তারিখটা আজ বা তার পরের হতে হবে।';
+    else if(name.length<2)msg='আপনার নাম লিখুন।';
+    else if(!/^01[3-9]\d{8}$/.test(phn))msg='সঠিক মোবাইল নম্বর লিখুন (১১ সংখ্যা, 01 দিয়ে শুরু)।';
+    else if(addr.length<5)msg='কোথায় পৌঁছে দিতে হবে সেই ঠিকানা লিখুন।';
+    if(msg){er.textContent=msg;er.classList.remove('hidden');return}
+    er.classList.add('hidden');btn.disabled=true;btn.textContent='অর্ডার পাঠানো হচ্ছে…';
+    var now=Date.now(),sub=evTotal();
+    Store.placeOrder({kind:'event',event:{date:date,time:$('#evTime').value,guests:$('#evGuests').value.trim().slice(0,20)},
+      items:lines,subtotal:sub,delivery:0,total:sub,type:'delivery',payment:'cod',
+      customer:{name:name.slice(0,80),phone:phn,address:addr.slice(0,300),note:$('#evNote').value.trim().slice(0,300)},
+      status:'pending',createdAt:now,updatedAt:now,history:[{status:'pending',at:now}]
+    }).then(function(no){
+      mine=[no].concat(mine.filter(function(x){return x!==no})).slice(0,5);localStorage.setItem('nsfc_orders',JSON.stringify(mine));drawMine();
+      B.innerHTML='<div class="okbox"><div class="tick"><svg viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 25l9 9 16-19"/></svg></div><p>আপনার অনুষ্ঠানের অর্ডার নম্বর</p><div class="big">'+esc(no)+'</div>'+
+        '<p>অর্ডারটা পেয়েছি। দাম আর সময় চূড়ান্ত করতে আমরা শিগগিরই '+esc(phn)+' নম্বরে কল দেব।</p><button class="btn gold block" id="evTrack">অর্ডার ট্র্যাক করুন</button></div>';
+      $('#evTrack').onclick=function(){closeItem();track(no);location.hash='#track'};
+    }).catch(function(e){console.error(e);btn.disabled=false;btn.textContent='অনুষ্ঠানের অর্ডার পাঠান';
+      er.textContent='অর্ডার পাঠানো যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন, অথবা কল করুন '+S.phone+'।';er.classList.remove('hidden')});
+  };
+}
+$('#evOpen').onclick=openEvent;
+
 function card(p){
   return '<div class="pc'+(p.available?'':' out')+'"><div class="pic" data-item="'+esc(p.id)+'">'+(p.image?'<img loading="lazy" src="'+esc(p.image)+'" alt="'+esc(p.name)+'">':ICON)+'</div>'+
     '<div class="b"><div data-item="'+esc(p.id)+'" role="button" tabindex="0"><div class="nm">'+esc(p.name)+'</div>'+rt(p)+'</div><div class="f"><span class="pr">'+tk(p.price)+'</span>'+ctl(p)+'</div></div></div>';
@@ -518,7 +598,7 @@ function card(p){
 function ctl(p){
   if(!p.available) return '<span class="ds">আজ শেষ</span>';
   var q=cart[p.id]||0;
-  if(!q) return '<button class="add" data-add="'+esc(p.id)+'" aria-label="'+esc(p.name)+' কার্টে যোগ করুন">অর্ডার করুন</button>';
+  if(!q) return '<button class="add" data-add="'+esc(p.id)+'" aria-label="'+esc(p.name)+' অর্ডার করুন">অর্ডার করুন</button>';
   return '<span class="qty"><button data-dec="'+esc(p.id)+'" aria-label="কমান">−</button><span>'+bn(q)+'</span><button data-add="'+esc(p.id)+'" aria-label="বাড়ান">+</button></span>';
 }
 function row(p){
@@ -666,7 +746,7 @@ function drawCart(){
   }
   if(!t.count){
     step='cart';$('#dTitle').textContent='আপনার অর্ডার';
-    B.innerHTML='<p class="empty">কার্ট খালি। মেনু থেকে পছন্দের খাবার অর্ডার করুন।</p>';
+    B.innerHTML='<p class="empty">কার্ট খালি। মেনু থেকে পছন্দের খাবারে "অর্ডার করুন" চাপুন।</p>';
     F.innerHTML='<button class="btn block" id="toMenu">মেনু দেখুন</button>';
     $('#toMenu').onclick=function(){closeD();location.hash='#menu'};return;
   }
@@ -770,7 +850,7 @@ function track(raw){
     R.innerHTML='<div class="tcard"><div class="no">'+esc(o.orderNo)+'</div>'+
       '<div class="now'+(cancelled?' bad':'')+'">'+(cancelled?'অর্ডারটি বাতিল হয়েছে':esc(Store.statusLabel(o.status,o.type)))+'</div>'+
       tScene(o.status,o.type)+
-      (cancelled?'<p class="lead">কোনো প্রশ্ন থাকলে কল করুন '+esc(S.phone)+'</p>':'<ol class="steps">'+steps+'</ol>')+
+      (cancelled?'<p class="lead">কোনো প্রশ্ন থাকলে কল করুন '+esc(S.phone)+'।</p>':'<ol class="steps">'+steps+'</ol>')+
       '<div class="tsum">'+(o.items||[]).map(function(i){return esc(i.name)+' × '+bn(i.qty)}).join(', ')+
       '<br><b>মোট '+tk(o.total)+'</b> ('+(o.type==='pickup'?'দোকান থেকে নেবেন':'হোম ডেলিভারি')+')</div></div>';
   });

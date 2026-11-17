@@ -138,6 +138,34 @@ nav.tabs button.on{color:var(--red);border-top-color:var(--red);font-weight:600}
 .rvw .pn{font-size:14.5px;color:var(--red);font-weight:600}
 .rvw p{margin:6px 0 0;overflow-wrap:anywhere}
 .strs{color:#e0a100;letter-spacing:2px}.strs i{color:#ddd;font-style:normal}
+.hb{display:block;width:100%;text-align:left;margin-top:10px;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;background:#faf6f2;font-weight:600;font-size:.95em;color:var(--ink)}
+button.hb{cursor:pointer}
+.hb.new{font-weight:500;color:var(--muted)}
+.hb.good{background:#e6f6ec;border-color:#a9dcbc;color:#156c3a}
+.hb.mid{background:#fff4d6;border-color:#f1d58a;color:#8a5a00}
+.hb.bad{background:#ffe3e3;border-color:#f0b4b4;color:#b3261e}
+.cr{margin-top:8px;background:#f1eeee;border-radius:8px;padding:6px 10px;font-size:.95em}
+.evi{margin-top:8px;background:#efe6ff;color:#4b2fa8;border-radius:8px;padding:6px 10px;font-weight:600;font-size:.95em}
+.st.ev{background:#4b2fa8;color:#fff}
+.sumbox{display:flex;gap:14px;align-items:center;border-radius:14px;padding:14px;margin:10px 0 12px;background:#faf6f2;border:1.5px solid var(--line)}
+.sumbox b{font:800 34px var(--display);flex:none;min-width:84px;text-align:center}
+.sumbox span{font-size:.95em;line-height:1.45}
+.sumbox.good{background:#e6f6ec;border-color:#a9dcbc}.sumbox.good b{color:#156c3a}
+.sumbox.mid{background:#fff4d6;border-color:#f1d58a}.sumbox.mid b{color:#8a5a00}
+.sumbox.bad{background:#ffe3e3;border-color:#f0b4b4}.sumbox.bad b{color:#b3261e}
+.mini{border-top:1px solid var(--line);padding:10px 0;font-size:.95em}
+.mini .otop .no{font-size:1.05em}
+.splash{position:fixed;inset:0;z-index:100;background:radial-gradient(40rem 26rem at 50% 110%,#5a1215,#0c0606 65%);display:grid;place-content:center;justify-items:center;gap:26px;color:#fff}
+.sring{width:150px;height:150px;border-radius:50%;position:relative;animation:sIn .7s cubic-bezier(.2,1.5,.4,1) both}
+.sring img{width:100%;height:100%;border-radius:50%;display:block}
+.sring::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:4px solid rgba(255,255,255,.08);border-top-color:var(--red);border-right-color:var(--gold);animation:spin 1s linear infinite}
+.sfood{display:flex;gap:20px;color:var(--gold)}
+.sfood svg{width:36px;height:36px;animation:hop .9s ease-in-out infinite}
+.sfood svg:nth-child(2){animation-delay:.15s}.sfood svg:nth-child(3){animation-delay:.3s}
+.splash p{margin:0;font:700 20px var(--display);letter-spacing:.02em}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes hop{0%,100%{transform:translateY(0)}45%{transform:translateY(-12px)}}
+@keyframes sIn{from{transform:scale(.4);opacity:0}}
 .sett h3{font-size:19px;margin:0 0 2px;color:var(--red)}
 .toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--coal);color:#fff;padding:9px 18px;border-radius:99px;z-index:90;font-size:15.5px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:92vw;text-align:center}
 .toast.on{opacity:1}
@@ -203,7 +231,16 @@ input[type=file]{max-width:100%;min-width:0;font-size:15px}
 <body>
 
 <!-- লগইন -->
-<div class="login" id="login">
+<div class="splash" id="splash" role="status" aria-label="লোড হচ্ছে">
+  <div class="sring"><img src="icons/logo-mark.jpg" alt=""></div>
+  <div class="sfood" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18M5 18a7 7 0 0 1 14 0M2 21h20M12 8V6"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10h12l-1.5 11h-9zM8 10l-1-6M11 10V3M14 10l.5-6M17 10l1-5"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10l-1.2 13H8.2zM6 8h12M14 8l2-6"/></svg>
+  </div>
+  <p>NS Food Cart</p>
+</div>
+<div class="login hidden" id="login">
   <form class="lbox" id="lForm">
     <img class="lmark" id="lLogo" src="icons/logo-mark.jpg" alt="NS Food Cart">
     <h1>অ্যাডমিন লগইন</h1>
@@ -238,6 +275,7 @@ input[type=file]{max-width:100%;min-width:0;font-size:15px}
         <div class="stat"><b id="stSale">৳০</b><span>আজকের বিক্রি</span></div>
       </div>
       <div class="head"><h2>অর্ডার</h2><button class="btn" id="addO">নতুন অর্ডার</button></div>
+      <input class="field" id="oSearch" type="search" placeholder="ফোন নম্বর, নাম বা অর্ডার নম্বর দিয়ে খুঁজুন" aria-label="অর্ডার খুঁজুন" style="margin-bottom:10px">
       <div class="filters" id="filters"></div>
       <div id="orderList"></div>
     </section>
@@ -293,6 +331,11 @@ input[type=file]{max-width:100%;min-width:0;font-size:15px}
           <div class="grid2"><div><label class="l">১ নম্বর শিরোনাম</label><input class="field" name="f1t"></div><div><label class="l">বিবরণ</label><input class="field" name="f1d"></div></div>
           <div class="grid2"><div><label class="l">২ নম্বর শিরোনাম</label><input class="field" name="f2t"></div><div><label class="l">বিবরণ</label><input class="field" name="f2d"></div></div>
           <div class="grid2"><div><label class="l">৩ নম্বর শিরোনাম</label><input class="field" name="f3t"></div><div><label class="l">বিবরণ</label><input class="field" name="f3d"></div></div>
+        </div>
+        <div class="card">
+          <h3>অনুষ্ঠানের অর্ডার অংশের লেখা</h3>
+          <label class="l">শিরোনাম</label><input class="field" name="evTitle">
+          <label class="l">নিচের লেখা</label><textarea class="field" name="evText" rows="2"></textarea>
         </div>
         <div class="card">
           <h3>ট্র্যাকিং অংশের লেখা</h3>
@@ -377,9 +420,15 @@ $('#lForm').onsubmit=function(e){
   }).then(function(){b.disabled=false});
 };
 $('#logout').onclick=function(){Store.signOut()};
+var bootAt=Date.now(),booted=false;
 Store.onAuth(function(u){
-  $('#login').classList.toggle('hidden',!!u);$('#app').classList.toggle('hidden',!u);
+  var show=function(){
+    booted=true;$('#splash').classList.add('hidden');
+    $('#login').classList.toggle('hidden',!!u);$('#app').classList.toggle('hidden',!u);
+  };
   if(u){$('#who').textContent=(Store.mode==='demo'?'ডেমো মোড':u.email);start()}
+  var wait=1400-(Date.now()-bootAt);
+  if(!booted&&wait>0)setTimeout(show,wait);else show();
 });
 
 function start(){
@@ -450,8 +499,15 @@ function drawOrders(){
   document.title=(nw?'('+nw+') ':'')+'NS Food Cart Admin';
   $('#filters').innerHTML=FILTERS.map(function(f){return '<button data-f="'+f[0]+'" class="'+(filter===f[0]?'on':'')+'">'+f[1]+(f[0]==='active'&&act.length?' ('+bn(act.length)+')':'')+'</button>'}).join('');
   var list=filter==='active'?act:filter==='all'?orders:orders.filter(function(o){return o.status===filter});
-  $('#orderList').innerHTML=list.length?list.map(orderCard).join(''):
-    '<p class="empty">'+(filter==='active'?'এখন কোনো চলমান অর্ডার নেই। নতুন অর্ডার এলে এখানে দেখাবে আর শব্দ হবে।':'এই তালিকায় কিছু নেই।')+'</p>';
+  var sumHtml='';
+  if(q){
+    list=orders.filter(matchQ);
+    var fp=Store.phone(q);
+    if(/^01\d{9}$/.test(fp)){var ss=stat(fp,null);if(ss.list.length)sumHtml=sumBox(ss)}
+  }
+  $('#filters').classList.toggle('hidden',!!q);
+  $('#orderList').innerHTML=sumHtml+(list.length?list.map(orderCard).join(''):(q?'<p class="empty">"'+esc(q)+'" দিয়ে কোনো অর্ডার পাওয়া যায়নি।</p>':
+    '<p class="empty">'+(filter==='active'?'এখন কোনো চলমান অর্ডার নেই। নতুন অর্ডার এলে এখানে দেখাবে আর শব্দ হবে।':'এই তালিকায় কিছু নেই।')+'</p>'));
 }
 function orderCard(o){
   var c=o.customer||{},nx=NEXT[o.status],pick=o.type==='pickup';
@@ -459,11 +515,14 @@ function orderCard(o){
   var done=o.status==='delivered'||o.status==='cancelled';
   return '<div class="card order'+(o.status==='pending'?' new':'')+'" data-no="'+esc(o.orderNo)+'">'+
     '<div class="otop"><span class="no">'+esc(o.orderNo)+'</span><span class="st '+esc(o.status)+'">'+esc(Store.statusLabel(o.status,o.type))+'</span>'+
-    '<span class="st">'+(pick?'দোকান থেকে নেবে':'হোম ডেলিভারি')+'</span><time>'+esc(Store.time(o.createdAt))+'</time></div>'+
+    '<span class="st">'+(pick?'দোকান থেকে নেবে':'হোম ডেলিভারি')+'</span>'+(o.kind==='event'?'<span class="st ev">অনুষ্ঠানের অর্ডার</span>':'')+'<time>'+esc(Store.time(o.createdAt))+'</time></div>'+
     '<div class="items">'+(o.items||[]).map(function(i){return '<div><span>'+esc(i.name)+' × '+bn(i.qty)+'</span><span>'+tk(i.price*i.qty)+'</span></div>'}).join('')+
     (o.delivery?'<div><span>ডেলিভারি চার্জ</span><span>'+tk(o.delivery)+'</span></div>':'')+
     '<div class="tot"><span>মোট (নগদ)</span><span>'+tk(o.total)+'</span></div></div>'+
     '<div class="cust"><b>'+esc(c.name)+'</b>, '+esc(c.phone)+(c.address?'<br>'+esc(c.address):'')+(c.note?'<br><span class="nt">নোট: '+esc(c.note)+'</span>':'')+'</div>'+
+    (o.kind==='event'&&o.event?'<div class="evi">অনুষ্ঠান: '+esc(evDate(o.event.date))+(o.event.time?', '+esc(evTime(o.event.time)):'')+(o.event.guests?', '+esc(o.event.guests)+' জনের আয়োজন':'')+'</div>':'')+
+    (o.status==='cancelled'&&o.cancelReason?'<div class="cr">বাতিলের কারণ: '+esc(o.cancelReason)+'</div>':'')+
+    histBadge(o)+
     '<div class="acts">'+
     (nx?'<button class="btn ok sm" data-set="'+nx[0]+'">'+nxLbl+'</button>':'')+
     '<a class="btn sec sm" href="tel:'+esc(c.phone)+'">কল</a>'+
@@ -482,8 +541,10 @@ $('#filters').onclick=function(e){var b=e.target.closest('[data-f]');if(b){filte
 $('#orderList').addEventListener('click',function(e){
   var card=e.target.closest('.order');if(!card)return;var no=card.dataset.no,s=e.target.closest('[data-set]');
   if(s){
-    if(s.dataset.set==='cancelled'&&!confirm(no+' অর্ডারটি বাতিল করবেন?'))return;
+    if(s.dataset.set==='cancelled'){cancelForm(no);return}
     s.disabled=true;Store.setStatus(no,s.dataset.set).then(function(){toast(no+': '+Store.STATUS[s.dataset.set])},fail);
+  }else if(e.target.closest('[data-h]')){
+    histModal(e.target.closest('[data-h]').dataset.h);
   }else if(e.target.closest('[data-eo]')){
     orderForm(orders.find(function(o){return o.orderNo===no}));
   }else if(e.target.closest('[data-del]')){
@@ -492,8 +553,66 @@ $('#orderList').addEventListener('click',function(e){
 });
 $('#orderList').addEventListener('change',function(e){
   var sel=e.target.closest('[data-sel]');if(!sel)return;var no=sel.closest('.order').dataset.no;
+  if(sel.value==='cancelled'){drawOrders();cancelForm(no);return}
   Store.setStatus(no,sel.value).then(function(){toast(no+': '+Store.STATUS[sel.value])},fail);
 });
+
+/* ---------- কাস্টমারের ইতিহাস, স্কোর, সার্চ ---------- */
+var q='';
+function ph(o){return Store.phone((o.customer||{}).phone)}
+function evTime(t){var d=new Date('1970-01-01T'+t);return isNaN(d)?t:d.toLocaleTimeString('bn-BD',{hour:'numeric',minute:'2-digit'})}
+function evDate(d){var t=new Date(d+'T00:00');return isNaN(t)?d:t.toLocaleDateString('bn-BD',{day:'numeric',month:'long',year:'numeric'})}
+function stat(phone,exceptNo){
+  var l=orders.filter(function(o){return phone&&ph(o)===phone&&o.orderNo!==exceptNo}),d=0,c=0,sh=0,act=0;
+  l.forEach(function(o){if(o.status==='delivered')d++;else if(o.status==='cancelled'){if(o.cancelBlame==='shop')sh++;else c++}else act++});
+  return {list:l,d:d,c:c,sh:sh,act:act,pct:(d+c)?Math.round(d/(d+c)*100):null};
+}
+function scoreCls(p){return p==null?'':p>=80?'good':p>=50?'mid':'bad'}
+function histBadge(o){
+  var s=stat(ph(o),o.orderNo);
+  if(!s.list.length)return '<div class="hb new">নতুন কাস্টমার, এই নম্বরে আগের কোনো অর্ডার নেই</div>';
+  return '<button type="button" class="hb '+scoreCls(s.pct)+'" data-h="'+esc(ph(o))+'">আগের অর্ডার '+bn(s.list.length)+'টি'+
+    (s.pct==null?'':', সফল ডেলিভারি '+bn(s.pct)+'%')+(s.c?', নেয়নি '+bn(s.c)+' বার':'')+'। বিস্তারিত দেখুন</button>';
+}
+function sumBox(s){
+  return '<div class="sumbox '+scoreCls(s.pct)+'"><b>'+(s.pct==null?'নতুন':bn(s.pct)+'%')+'</b><span>'+(s.pct==null?'এখনো কোনো অর্ডার শেষ হয়নি':'সফল ডেলিভারির হার')+
+    '<br>মোট '+bn(s.list.length)+'টি অর্ডার: পৌঁছেছে '+bn(s.d)+', কাস্টমারের কারণে বাতিল '+bn(s.c)+', দোকানের কারণে বাতিল '+bn(s.sh)+', চলমান '+bn(s.act)+'</span></div>';
+}
+function miniOrder(o){
+  return '<div class="mini"><div class="otop"><span class="no">'+esc(o.orderNo)+'</span><span class="st '+esc(o.status)+'">'+esc(Store.statusLabel(o.status,o.type))+'</span><time>'+esc(Store.fullTime(o.createdAt))+'</time></div>'+
+    '<div>'+(o.items||[]).map(function(i){return esc(i.name)+' × '+bn(i.qty)}).join(', ')+' <b>'+tk(o.total)+'</b></div>'+
+    (o.cancelReason?'<div class="cr">বাতিলের কারণ: '+esc(o.cancelReason)+'</div>':'')+'</div>';
+}
+function histModal(phone){
+  var s=stat(phone,null),nm=((s.list[0]||{}).customer||{}).name||'';
+  modal('<h2>'+esc(phone)+'</h2><p class="help">'+esc(nm)+'</p>'+sumBox(s)+s.list.map(miniOrder).join('')+
+    '<div class="mfoot"><button type="button" class="btn sec" data-close>বন্ধ করুন</button></div>');
+}
+function matchQ(o){
+  var c=o.customer||{},t=q.toLowerCase(),qd=Store.phone(q).replace(/^88/,'');
+  return (qd.length>=3&&(ph(o).indexOf(qd)>-1||String(o.orderNo).indexOf(qd)>-1))||String(c.name||'').toLowerCase().indexOf(t)>-1||String(o.orderNo).toLowerCase().indexOf(t)>-1;
+}
+$('#oSearch').oninput=function(){q=this.value.trim();drawOrders()};
+
+/* ---------- বাতিলের কারণ ---------- */
+var REASONS=[['কাস্টমার ফোন ধরেনি','customer'],['কাস্টমার খাবার নেয়নি বা ফিরিয়ে দিয়েছে','customer'],['ভুয়া অর্ডার','customer'],['কাস্টমার নিজে বাতিল করতে বলেছে','customer'],
+  ['আইটেম শেষ হয়ে গেছে','shop'],['ডেলিভারি এলাকার বাইরে','shop'],['দোকান বন্ধ ছিল','shop']];
+function cancelForm(no){
+  var m=modal('<h2>'+esc(no)+' বাতিল</h2><form id="xf">'+
+    '<label class="l">কেন বাতিল হচ্ছে</label><select class="field" name="reason">'+REASONS.map(function(r,i){return '<option value="'+i+'">'+esc(r[0])+'</option>'}).join('')+'<option value="other">অন্য কারণ (নিজে লিখব)</option></select>'+
+    '<label class="l" id="xNoteL">বাড়তি নোট (ঐচ্ছিক)</label><textarea class="field" name="note" rows="2" maxlength="300"></textarea>'+
+    '<div class="checks hidden" id="xBlame"><label><input type="checkbox" name="blame" checked> কাস্টমারের কারণে বাতিল (তার স্কোর কমবে)</label></div>'+
+    '<p class="help">কাস্টমারের কারণে বাতিল হলে তার সফল ডেলিভারির হার কমে; দোকানের কারণে হলে কমে না। কারণটা শুধু অ্যাডমিন দেখে।</p>'+
+    '<div class="mfoot"><button type="button" class="btn sec" data-close>ফিরে যান</button><button class="btn">অর্ডার বাতিল করুন</button></div></form>');
+  var f=$('#xf',m).elements;
+  f.reason.onchange=function(){var o=f.reason.value==='other';$('#xBlame',m).classList.toggle('hidden',!o);$('#xNoteL',m).textContent=o?'কারণটা লিখুন':'বাড়তি নোট (ঐচ্ছিক)'};
+  $('#xf',m).onsubmit=function(e){
+    e.preventDefault();var other=f.reason.value==='other',note=f.note.value.trim(),r=other?null:REASONS[Number(f.reason.value)];
+    if(other&&note.length<3){toast('বাতিলের কারণটা লিখুন');return}
+    Store.setStatus(no,'cancelled',{cancelReason:other?note:r[0]+(note?' ('+note+')':''),cancelBlame:other?(f.blame.checked?'customer':'shop'):r[1]})
+      .then(function(){closeModal();toast(no+' বাতিল হয়েছে')},fail);
+  };
+}
 
 /* ---------- অর্ডার তৈরি / আইটেম বদল ---------- */
 $('#addO').onclick=function(){
@@ -643,7 +762,7 @@ function catForm(c){
 }
 
 /* ---------- সেটিংস ---------- */
-var TEXT=['name','tagline','announcement','heroTitle','heroText','about','phone','whatsapp','address','hours','facebook','deliveryNote','closedMessage','bkash','accent','f1t','f1d','f2t','f2d','f3t','f3d','nowLabel','trackTitle','trackLead'];
+var TEXT=['name','tagline','announcement','heroTitle','heroText','about','phone','whatsapp','address','hours','facebook','deliveryNote','closedMessage','bkash','accent','f1t','f1d','f2t','f2d','f3t','f3d','nowLabel','trackTitle','trackLead','evTitle','evText'];
 var dirty=false;
 function fillSettings(){
   if(dirty)return;var f=$('#setForm');

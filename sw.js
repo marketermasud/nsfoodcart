@@ -1,5 +1,5 @@
 // NS Food Cart Admin — service worker (network first, cache fallback)
-const CACHE = 'nsfc-admin-v9';
+const CACHE = 'nsfc-admin-v10';
 const SHELL = ['admin.html', 'js/store.js', 'js/firebase-config.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/logo-mark.jpg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
