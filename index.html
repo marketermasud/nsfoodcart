@@ -337,6 +337,7 @@ label.l{display:block;font-size:15px;font-weight:500;margin:14px 0 5px}
 
 <div class="demo hidden" id="demoBar">ডেমো মোড: Firebase এখনো কানেক্ট করা হয়নি, অর্ডার শুধু এই ব্রাউজারে জমা থাকবে।</div>
 <div class="closedbar hidden" id="closedBar" role="status"></div>
+<div class="announce hidden" id="freeBar" style="background:var(--gold);color:#241a05;font-weight:600"></div>
 <div class="announce hidden" id="announce"></div>
 
 <header class="top">
@@ -440,7 +441,9 @@ $('#yr').textContent=new Date().getFullYear();
 Store.watchSettings(function(s){S=s;shell();menu();drawCart()});
 Store.watchCategories(function(c){cats=c;loaded.c=true;menu()});
 Store.watchProducts(function(p){prods=p;loaded.p=true;menu();drawCart()});
-setInterval(menu,5*60*1000); // সময় বদলালে "এখন চলছে" আপডেট
+setInterval(menu,5*60*1000);
+var lastFree=false;
+setInterval(function(){if(Store.isFree(S)!==lastFree){shell();drawCart()}},30000); // ফ্রি ডেলিভারির সময় শুরু বা শেষ হলে নিজে থেকে বদলায় // সময় বদলালে "এখন চলছে" আপডেট
 
 function toast(t){var el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove('on')},1800)}
 function tel(p){return 'tel:'+String(p||'').replace(/[^\d+]/g,'')}
@@ -458,6 +461,8 @@ function shell(){
   var cb=$('#closedBar');cb.classList.toggle('hidden',!!S.shopOpen);cb.textContent='অর্ডার বন্ধ। '+(S.closedMessage||'');
   $('#feats').innerHTML=[[S.f1t,S.f1d,FI[0]],[S.f2t,S.f2d,FI[1]],[S.f3t,S.f3d,FI[2]]].filter(function(f){return f[0]}).map(function(f){
     return '<div class="feat">'+f[2]+'<div><b>'+esc(f[0])+'</b><span>'+esc(f[1])+'</span></div></div>'}).join('');
+  lastFree=Store.isFree(S);var fb=$('#freeBar');fb.classList.toggle('hidden',!lastFree);
+  fb.textContent=lastFree?'ফ্রি হোম ডেলিভারি চলছে'+(!S.freeDelivery&&Number(S.freeUntil)?', '+Store.fullTime(Number(S.freeUntil))+' পর্যন্ত':'')+'।':'';
   $('#evTitle').textContent=S.evTitle;$('#evText').textContent=S.evText;
   $('#trackTitle').textContent=S.trackTitle;$('#trackLead').textContent=S.trackLead;
   $('#callM').href=tel(S.phone);$('#callBtn').href=tel(S.phone);$('#callBtn').textContent='কল করুন '+S.phone;
@@ -695,7 +700,7 @@ function lines(){
 }
 function totals(){
   var l=lines(),sub=l.reduce(function(s,i){return s+i.price*i.qty},0);
-  var del=(form.type==='delivery'&&!S.freeDelivery&&l.length)?Number(S.deliveryCharge)||0:0;
+  var del=(form.type==='delivery'&&!Store.isFree(S)&&l.length)?Number(S.deliveryCharge)||0:0;
   return {lines:l,count:l.reduce(function(s,i){return s+i.qty},0),sub:sub,del:del,total:sub+del};
 }
 function save(){localStorage.setItem('nsfc_cart',JSON.stringify(cart))}

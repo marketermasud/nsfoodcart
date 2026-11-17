@@ -21,6 +21,8 @@
     facebook: 'https://www.facebook.com/nsfoodcart',
     deliveryCharge: 20,
     freeDelivery: false,
+    freeFrom: 0,
+    freeUntil: 0,
     minOrder: 0,
     deliveryNote: 'হোম ডেলিভারি শুধু আটঘরিয়া থানার ভেতরে।',
     bkash: '',
@@ -309,6 +311,13 @@
     if (d.length === 13 && d.indexOf('880') === 0) d = d.slice(2);
     if (d.length === 10 && d.charAt(0) === '1') d = '0' + d;
     return d;
+  };
+  // ডেলিভারি এখন ফ্রি কি না: "সবসময় ফ্রি" টিক দেওয়া থাকলে, অথবা এখনকার সময় ফ্রি ডেলিভারির শুরু-শেষের ভেতরে পড়লে
+  Store.isFree = function (S) {
+    if (S.freeDelivery) return true;
+    var n = Date.now(), f = Number(S.freeFrom) || 0, u = Number(S.freeUntil) || 0;
+    if (!f && !u) return false;
+    return (!f || n >= f) && (!u || n < u);
   };
   Store.esc = function (s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {

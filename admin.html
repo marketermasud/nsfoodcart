@@ -359,9 +359,17 @@ input[type=file]{max-width:100%;min-width:0;font-size:15px}
             <div><label class="l">সর্বনিম্ন অর্ডার (টাকা)</label><input class="field" name="minOrder" type="number" min="0"></div>
           </div>
           <div class="checks">
-            <label><input type="checkbox" name="freeDelivery"> এখন ফ্রি ডেলিভারি</label>
+            <label><input type="checkbox" name="freeDelivery"> সবসময় ফ্রি ডেলিভারি</label>
             <label><input type="checkbox" name="shopOpen"> অর্ডার নেওয়া চালু</label>
           </div>
+          <label class="l" style="margin-top:18px">নির্দিষ্ট সময়ের জন্য ফ্রি ডেলিভারি</label>
+          <div class="grid2">
+            <div><label class="l" style="margin-top:0">শুরু</label><input class="field" type="datetime-local" name="freeFrom"></div>
+            <div><label class="l" style="margin-top:0">শেষ</label><input class="field" type="datetime-local" name="freeUntil"></div>
+          </div>
+          <p class="help" id="freeState"></p>
+          <p class="help">এই সময়ের ভেতরে ডেলিভারি চার্জ নেওয়া হবে না। শেষ সময় পার হলে ওপরের ডেলিভারি চার্জ নিজে থেকে আবার যোগ হবে। শুরু খালি রাখলে এখন থেকেই ফ্রি; দুটোই খালি রাখলে এই সুবিধা বন্ধ।</p>
+          <button type="button" class="btn sec sm" id="freeClear" style="margin-top:8px">সময় মুছে দিন</button>
           <label class="l">ডেলিভারি এলাকা নিয়ে নোট</label><input class="field" name="deliveryNote">
           <label class="l">বন্ধ থাকলে যে বার্তা দেখাবে</label><input class="field" name="closedMessage">
           <label class="l">বিকাশ নম্বর (ঐচ্ছিক)</label><input class="field" name="bkash" inputmode="tel">
@@ -375,7 +383,6 @@ input[type=file]{max-width:100%;min-width:0;font-size:15px}
         <div class="acts">
           <button class="btn sec sm" id="notifBtn">নতুন অর্ডারের নোটিফিকেশন চালু করুন</button>
           <button class="btn sec sm" id="testSound">সাউন্ড পরীক্ষা করুন</button>
-          <button class="btn sec sm" id="seedBtn">ডেমো মেনু লোড করুন</button>
         </div>
         <p class="help">নতুন অর্ডার এলে শব্দ ও নোটিফিকেশন পেতে অ্যাপটা খোলা রাখতে হবে।</p>
       </div>
@@ -434,7 +441,7 @@ Store.onAuth(function(u){
 function start(){
   if(started)return;started=true;
   if(Store.ensureSeed)Store.ensureSeed().then(function(did){if(did)toast('মেনুর ১৬টি আইটেম Firebase-এ সেভ হয়েছে। এখন এডিট করতে পারেন।')},fail);
-  Store.watchSettings(function(s){S=s;$('#bLogo').src=$('#lLogo').src=S.logo||'icons/logo-mark.jpg';fillSettings();$('#openSw').checked=!!S.shopOpen;$('#openLbl').textContent=S.shopOpen?'অর্ডার চালু':'অর্ডার বন্ধ'});
+  Store.watchSettings(function(s){S=s;$('#bLogo').src=$('#lLogo').src=S.logo||'icons/logo-mark.jpg';fillSettings();freeState();$('#openSw').checked=!!S.shopOpen;$('#openLbl').textContent=S.shopOpen?'অর্ডার চালু':'অর্ডার বন্ধ'});
   Store.watchCategories(function(c){cats=c;drawCats();drawProds()});
   Store.watchProducts(function(p){prods=p;drawProds();drawRevs()});
   Store.watchReviews(function(r){revs=r;drawRevs()});
@@ -479,10 +486,6 @@ $('#testSound').onclick=beep;
 $('#notifBtn').onclick=function(){
   if(!window.Notification){toast('এই ব্রাউজারে নোটিফিকেশন চলে না');return}
   Notification.requestPermission().then(function(p){toast(p==='granted'?'নোটিফিকেশন চালু হয়েছে':'নোটিফিকেশনের অনুমতি দেওয়া হয়নি')});
-};
-$('#seedBtn').onclick=function(){
-  if(!confirm('ফেসবুক পেজের মেনু কার্ডের ১৬টি আইটেম ও ৪টি ক্যাটাগরি লোড হবে। চালিয়ে যাবেন?'))return;
-  Store.seed().then(function(){toast('ডেমো মেনু লোড হয়েছে')},fail);
 };
 
 /* ---------- অর্ডার ---------- */
@@ -652,7 +655,7 @@ function orderForm(o){
     draw();$('#oItems',m).scrollTop=top;
   };
   f.delivery.oninput=tot;
-  f.otype.onchange=function(){f.delivery.value=(f.otype.value==='delivery'&&!S.freeDelivery)?(Number(S.deliveryCharge)||0):0;tot()};
+  f.otype.onchange=function(){f.delivery.value=(f.otype.value==='delivery'&&!Store.isFree(S))?(Number(S.deliveryCharge)||0):0;tot()};
   draw();
   $('#of',m).onsubmit=function(e){
     e.preventDefault();
@@ -680,7 +683,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()
 
 /* ---------- আইটেম ---------- */
 function drawProds(){
-  if(!prods.length){$('#prodList').innerHTML='<p class="empty">এখনো কোনো আইটেম নেই। "নতুন আইটেম" চেপে যোগ করুন, অথবা সেটিংস থেকে ডেমো মেনু লোড করুন।</p>';return}
+  if(!prods.length){$('#prodList').innerHTML='<p class="empty">এখনো কোনো আইটেম নেই। "নতুন আইটেম" চেপে যোগ করুন।</p>';return}
   var groups=cats.map(function(c){return {name:c.name,items:prods.filter(function(p){return p.category===c.id})}});
   var orphan=prods.filter(function(p){return !cats.some(function(c){return c.id===p.category})});
   if(orphan.length)groups.push({name:'ক্যাটাগরি ছাড়া',items:orphan});
@@ -764,11 +767,23 @@ function catForm(c){
 /* ---------- সেটিংস ---------- */
 var TEXT=['name','tagline','announcement','heroTitle','heroText','about','phone','whatsapp','address','hours','facebook','deliveryNote','closedMessage','bkash','accent','f1t','f1d','f2t','f2d','f3t','f3d','nowLabel','trackTitle','trackLead','evTitle','evText'];
 var dirty=false;
+function toLocal(ts){ts=Number(ts)||0;if(!ts)return '';var d=new Date(ts-new Date(ts).getTimezoneOffset()*60000);return d.toISOString().slice(0,16)}
+function fromLocal(v){var t=v?new Date(v).getTime():0;return isNaN(t)?0:t}
+function freeState(){
+  var f=Number(S.freeFrom)||0,u=Number(S.freeUntil)||0,n=Date.now(),t;
+  if(S.freeDelivery)t='এখন অবস্থা: সবসময় ফ্রি ডেলিভারি টিক দেওয়া আছে, তাই সময় যা-ই হোক চার্জ নেওয়া হচ্ছে না।';
+  else if(!f&&!u)t='এখন অবস্থা: কোনো সময় বসানো নেই, ডেলিভারি চার্জ '+tk(S.deliveryCharge)+' নেওয়া হচ্ছে।';
+  else if(u&&n>=u)t='এখন অবস্থা: ফ্রি ডেলিভারির সময় শেষ হয়ে গেছে ('+Store.fullTime(u)+'), চার্জ '+tk(S.deliveryCharge)+' নেওয়া হচ্ছে।';
+  else if(f&&n<f)t='এখন অবস্থা: ফ্রি ডেলিভারি শুরু হবে '+Store.fullTime(f)+'। তার আগে চার্জ '+tk(S.deliveryCharge)+'।';
+  else t='এখন অবস্থা: ফ্রি ডেলিভারি চলছে'+(u?', শেষ হবে '+Store.fullTime(u):', শেষ সময় দেওয়া নেই')+'।';
+  $('#freeState').textContent=t;
+}
 function fillSettings(){
   if(dirty)return;var f=$('#setForm');
   TEXT.forEach(function(k){f.elements[k].value=S[k]==null?'':S[k]});
   f.deliveryCharge.value=S.deliveryCharge;f.minOrder.value=S.minOrder;
-  f.freeDelivery.checked=!!S.freeDelivery;f.shopOpen.checked=!!S.shopOpen;
+  f.freeDelivery.checked=!!S.freeDelivery;
+  f.elements.freeFrom.value=toLocal(S.freeFrom);f.elements.freeUntil.value=toLocal(S.freeUntil);freeState();f.shopOpen.checked=!!S.shopOpen;
   pendingImg={logo:S.logo||''};showImgs();
 }
 function showImgs(){
@@ -776,13 +791,15 @@ function showImgs(){
     var v=pendingImg[a[0]];$(a[1]).classList.toggle('hidden',!v);if(v)$(a[1]).src=v;$(a[2]).classList.toggle('hidden',!v)});
 }
 $('#setForm').addEventListener('input',function(){dirty=true});
+$('#freeClear').onclick=function(){var f=$('#setForm').elements;f.freeFrom.value='';f.freeUntil.value='';dirty=true;toast('সময় মুছে দেওয়া হয়েছে। সেভ করতে নিচের বাটন চাপুন।')};
 $('#logoFile').onchange=function(){if(this.files[0])Store.shrinkImage(this.files[0],256,'image/png').then(function(d){pendingImg.logo=d;dirty=true;showImgs()},fail)};
 $('#logoDel').onclick=function(){pendingImg.logo='';$('#logoFile').value='';dirty=true;showImgs()};
 $('#setForm').onsubmit=function(e){
   e.preventDefault();var f=e.target,d={},b=$('#setSave');
   TEXT.forEach(function(k){d[k]=f.elements[k].value.trim()});
   d.deliveryCharge=Number(f.deliveryCharge.value)||0;d.minOrder=Number(f.minOrder.value)||0;
-  d.freeDelivery=f.freeDelivery.checked;d.shopOpen=f.shopOpen.checked;d.logo=pendingImg.logo;
+  d.freeDelivery=f.freeDelivery.checked;d.freeFrom=fromLocal(f.elements.freeFrom.value);d.freeUntil=fromLocal(f.elements.freeUntil.value);
+  if(d.freeFrom&&d.freeUntil&&d.freeUntil<=d.freeFrom){toast('ফ্রি ডেলিভারির শেষ সময় শুরুর পরে হতে হবে');return}d.shopOpen=f.shopOpen.checked;d.logo=pendingImg.logo;
   b.disabled=true;
   Store.saveSettings(d).then(function(){dirty=false;toast('সেভ হয়েছে। ওয়েবসাইটে সাথে সাথে বদলে গেছে।')},fail).then(function(){b.disabled=false});
 };
