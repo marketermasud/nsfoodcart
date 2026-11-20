@@ -77,6 +77,30 @@ nav.tabs button.on{color:var(--red);border-top-color:var(--red);font-weight:600}
 .filters{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
 .filters button{flex:none;background:#fff;border:1.5px solid var(--line);border-radius:99px;padding:5px 14px;font-size:15px;font-weight:500}
 .filters button.on{background:var(--coal);color:#fff;border-color:var(--coal)}
+/* বিক্রির হিসাব */
+.rep{margin-bottom:14px}
+.rephead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.rephead h3{margin:0}
+.rephead small{display:block;color:var(--muted);font-size:13.5px;font-weight:500}
+.rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rbox{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.rbox b{display:block;font:800 22px var(--display);line-height:1.2;overflow-wrap:anywhere}
+.rbox span{font-size:13.5px;color:var(--muted)}
+.rbox em{display:block;font-style:normal;font-size:12.5px;color:var(--muted);margin-top:2px}
+.rbox.big{background:var(--coal);color:#fff;border-color:var(--coal)}
+.rbox.big span,.rbox.big em{color:#d9cfc9}
+.rbox.ok b{color:#156c3a}
+.rtbl{width:100%;border-collapse:collapse;font-size:15px;margin-top:6px}
+.rtbl th{text-align:left;font-size:13px;color:var(--muted);font-weight:600;padding:6px 4px;border-bottom:1px solid var(--line)}
+.rtbl td{padding:8px 4px;border-bottom:1px dashed var(--line)}
+.rtbl td:not(:first-child),.rtbl th:not(:first-child){text-align:right;white-space:nowrap}
+.rtbl tr[data-day]{cursor:pointer}
+.rtbl tr[data-day]:hover td{background:var(--bg)}
+.rsec{margin-top:16px}
+.rsec h4{margin:0 0 4px;font-size:16px}
+.rbar{height:6px;border-radius:99px;background:var(--red);opacity:.75;margin-top:4px}
+.rlist-note{font-size:14px;color:var(--muted);margin:-4px 0 10px}
+@media (max-width:640px){.rgrid{grid-template-columns:repeat(2,1fr)}}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
 .order.new{border:2px solid var(--red);box-shadow:0 0 0 4px rgba(216,31,38,.12)}
@@ -104,6 +128,13 @@ nav.tabs button.on{color:var(--red);border-top-color:var(--red);font-weight:600}
 .prow .i span{font-size:14.5px;color:var(--muted)}
 .prow .switch input{background:#cdbfb6}.prow .switch input:checked{background:var(--ok)}
 .catname{font:700 18px var(--display);margin:0 0 4px;color:var(--red)}
+.cathead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-bottom:6px;margin-bottom:2px;border-bottom:1px solid var(--line)}
+.cathead .catname{margin:0}
+.cathead small{display:block;font-size:13.5px;color:var(--muted);font-weight:500}
+.cathead small.off{color:var(--red)}
+.badge-sp{display:inline-block;font-size:12.5px;font-weight:700;background:#f2b632;color:#241a05;border-radius:99px;padding:1px 9px;margin-left:6px;vertical-align:2px}
+.badge-off{display:inline-block;font-size:12.5px;font-weight:700;background:#fde3e3;color:#a8151b;border-radius:99px;padding:1px 9px;margin-left:6px;vertical-align:2px}
+.card.paused .prow{opacity:.55}
 
 .modal{position:fixed;inset:0;z-index:50;background:rgba(20,11,11,.6);display:grid;place-items:end center}
 .mbox{background:#fff;width:min(520px,100%);max-height:94dvh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom))}
@@ -273,6 +304,13 @@ input[type=file]{max-width:100%;min-width:0;font-size:15px}
         <div class="stat hot"><b id="stNew">০</b><span>নতুন অর্ডার</span></div>
         <div class="stat"><b id="stToday">০</b><span>আজকের অর্ডার</span></div>
         <div class="stat"><b id="stSale">৳০</b><span>আজকের বিক্রি</span></div>
+      </div>
+      <div class="card rep" id="report">
+        <div class="rephead"><div><h3>বিক্রির হিসাব</h3><small id="repRange"></small></div><button class="btn sec sm" id="repToggle">বিস্তারিত দেখুন</button></div>
+        <div class="filters" id="periods"></div>
+        <div class="grid2 hidden" id="customRange" style="margin-bottom:10px"><div><label class="l" for="rFrom">শুরুর তারিখ</label><input type="date" class="field" id="rFrom"></div><div><label class="l" for="rTo">শেষ তারিখ</label><input type="date" class="field" id="rTo"></div></div>
+        <div class="rgrid" id="repStats"></div>
+        <div id="repMore" class="hidden"></div>
       </div>
       <div class="head"><h2>অর্ডার</h2><button class="btn" id="addO">নতুন অর্ডার</button></div>
       <input class="field" id="oSearch" type="search" placeholder="ফোন নম্বর, নাম বা অর্ডার নম্বর দিয়ে খুঁজুন" aria-label="অর্ডার খুঁজুন" style="margin-bottom:10px">
@@ -523,10 +561,12 @@ function drawOrders(){
   var tb=$('#tabBadge');tb.textContent=bn(nw);tb.classList.toggle('hidden',!nw);
   document.title=(nw?'('+nw+') ':'')+'NS Food Cart Admin';
   $('#filters').innerHTML=FILTERS.map(function(f){return '<button data-f="'+f[0]+'" class="'+(filter===f[0]?'on':'')+'">'+f[1]+(f[0]==='active'&&act.length?' ('+bn(act.length)+')':'')+'</button>'}).join('');
-  var list=filter==='active'?act:filter==='all'?orders:orders.filter(function(o){return o.status===filter});
-  var sumHtml='';
+  var R=range(),inR=function(o){return o.createdAt>=R.from&&o.createdAt<R.to};
+  var list=filter==='active'?act:orders.filter(function(o){return inR(o)&&(filter==='all'||o.status===filter)});
+  var sumHtml=filter==='active'||R.key==='all'?'':'<p class="rlist-note">সময়: <b>'+esc(R.label)+'</b>, '+bn(list.length)+'টি অর্ডার দেখাচ্ছে। সময় বদলাতে উপরের "বিক্রির হিসাব" থেকে বেছে নিন।</p>';
+  drawReport();
   if(q){
-    list=orders.filter(matchQ);
+    sumHtml='';list=orders.filter(matchQ);
     var fp=Store.phone(q);
     if(/^01\d{9}$/.test(fp)){var ss=stat(fp,null);if(ss.list.length)sumHtml=sumBox(ss)}
   }
@@ -534,6 +574,113 @@ function drawOrders(){
   $('#orderList').innerHTML=sumHtml+(list.length?list.map(orderCard).join(''):(q?'<p class="empty">"'+esc(q)+'" দিয়ে কোনো অর্ডার পাওয়া যায়নি।</p>':
     '<p class="empty">'+(filter==='active'?'এখন কোনো চলমান অর্ডার নেই। নতুন অর্ডার এলে এখানে দেখাবে আর শব্দ হবে।':'এই তালিকায় কিছু নেই।')+'</p>'));
 }
+/* ---------- বিক্রির হিসাব (রিপোর্ট) ---------- */
+var PERIODS=[['today','আজ'],['yesterday','গতকাল'],['7d','গত ৭ দিন'],['30d','গত ৩০ দিন'],['month','এই মাস'],['lastmonth','গত মাস'],['all','সব সময়'],['custom','তারিখ বেছে নিন']];
+var period='today',repOpen=false,rFrom='',rTo='';
+try{period=localStorage.getItem('nsfc_period')||'today'}catch(e){}
+if(!PERIODS.some(function(x){return x[0]===period}))period='today';
+function sod(d){d=new Date(d);d.setHours(0,0,0,0);return d.getTime()}
+function addDays(t,n){var d=new Date(t);d.setDate(d.getDate()+n);return d.getTime()}
+function ymd(t){var d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function dLbl(t){return new Date(t).toLocaleDateString('bn-BD',{day:'numeric',month:'long',year:'numeric'})}
+function dShort(t){return new Date(t).toLocaleDateString('bn-BD',{day:'numeric',month:'short',weekday:'short'})}
+function range(){
+  var t0=sod(Date.now()),n=new Date(),r;
+  switch(period){
+    case 'yesterday':r=[addDays(t0,-1),t0];break;
+    case '7d':r=[addDays(t0,-6),addDays(t0,1)];break;
+    case '30d':r=[addDays(t0,-29),addDays(t0,1)];break;
+    case 'month':r=[new Date(n.getFullYear(),n.getMonth(),1).getTime(),addDays(t0,1)];break;
+    case 'lastmonth':r=[new Date(n.getFullYear(),n.getMonth()-1,1).getTime(),new Date(n.getFullYear(),n.getMonth(),1).getTime()];break;
+    case 'all':r=[0,Infinity];break;
+    case 'custom':
+      var f=rFrom?sod(rFrom+'T00:00'):t0,e=rTo?sod(rTo+'T00:00'):f;if(e<f){var x=f;f=e;e=x}
+      r=[f,addDays(e,1)];break;
+    default:r=[t0,addDays(t0,1)];
+  }
+  var lbl=PERIODS.filter(function(x){return x[0]===period})[0][1],sub;
+  if(period==='all')sub='শুরু থেকে আজ পর্যন্ত';
+  else if(r[1]-r[0]<=864e5+36e5)sub=dLbl(r[0]);
+  else sub=dLbl(r[0])+' থেকে '+dLbl(addDays(r[1],-1));
+  if(period==='custom')lbl=sub;
+  return {key:period,from:r[0],to:r[1],label:lbl,sub:sub};
+}
+function calc(list){
+  var ok=list.filter(function(o){return o.status!=='cancelled'}),dl=list.filter(function(o){return o.status==='delivered'});
+  var sum=function(a,f){return a.reduce(function(s,o){return s+(Number(f(o))||0)},0)};
+  return {all:list.length,ok:ok.length,sale:sum(ok,function(o){return o.total}),
+    dl:dl.length,dlSale:sum(dl,function(o){return o.total}),
+    run:ok.length-dl.length,runSale:sum(ok,function(o){return o.total})-sum(dl,function(o){return o.total}),
+    cx:list.length-ok.length,cxSale:sum(list.filter(function(o){return o.status==='cancelled'}),function(o){return o.total}),
+    disc:sum(ok,function(o){return o.discount&&o.discount.amount}),fee:sum(ok,function(o){return o.delivery}),
+    ev:ok.filter(function(o){return o.kind==='event'}).length,
+    cust:Object.keys(ok.reduce(function(m,o){var p=Store.phone((o.customer||{}).phone);if(p)m[p]=1;return m},{})).length,ordersOk:ok};
+}
+function drawReport(){
+  var R=range(),list=orders.filter(function(o){return o.createdAt>=R.from&&o.createdAt<R.to}),c=calc(list);
+  $('#periods').innerHTML=PERIODS.map(function(p){return '<button data-p="'+p[0]+'" class="'+(period===p[0]?'on':'')+'">'+p[1]+'</button>'}).join('');
+  $('#customRange').classList.toggle('hidden',period!=='custom');
+  $('#repRange').textContent=R.sub;
+  var box=function(cls,v,l,em){return '<div class="rbox '+cls+'"><b>'+v+'</b><span>'+l+'</span>'+(em?'<em>'+em+'</em>':'')+'</div>'};
+  $('#repStats').innerHTML=
+    box('big',tk(c.sale),'মোট বিক্রি',bn(c.ok)+'টি অর্ডার (বাতিল ছাড়া)')+
+    box('ok',tk(c.dlSale),'টাকা হাতে এসেছে',bn(c.dl)+'টি ডেলিভারি সম্পন্ন')+
+    box('',tk(c.ok?Math.round(c.sale/c.ok):0),'গড় অর্ডার',bn(c.cust)+' জন কাস্টমার')+
+    box('',bn(c.cx)+'টি','বাতিল অর্ডার',c.cx?tk(c.cxSale)+'-এর':'');
+  if(!repOpen){$('#repMore').classList.add('hidden');$('#repToggle').textContent='বিস্তারিত দেখুন';return}
+  $('#repToggle').textContent='বিস্তারিত লুকান';
+  // দিনভিত্তিক
+  var days={};c.ordersOk.forEach(function(o){var k=ymd(o.createdAt);days[k]=days[k]||{t:sod(o.createdAt),n:0,s:0};days[k].n++;days[k].s+=Number(o.total)||0});
+  list.filter(function(o){return o.status==='cancelled'}).forEach(function(o){var k=ymd(o.createdAt);days[k]=days[k]||{t:sod(o.createdAt),n:0,s:0};days[k].x=(days[k].x||0)+1});
+  var dl=Object.keys(days).sort().reverse().map(function(k){return days[k]});
+  var maxS=Math.max.apply(null,dl.map(function(d){return d.s}).concat([1]));
+  // আইটেম
+  var it={};c.ordersOk.forEach(function(o){(o.items||[]).forEach(function(i){var k=i.name;it[k]=it[k]||{n:k,q:0,s:0};it[k].q+=Number(i.qty)||0;it[k].s+=(Number(i.qty)||0)*(Number(i.price)||0)})});
+  var il=Object.keys(it).map(function(k){return it[k]}).sort(function(a,b){return b.q-a.q||b.s-a.s});
+  // বাতিলের কারণ
+  var cr={};list.filter(function(o){return o.status==='cancelled'}).forEach(function(o){var k=o.cancelReason||'কারণ লেখা নেই';cr[k]=(cr[k]||0)+1});
+  var crl=Object.keys(cr).sort(function(a,b){return cr[b]-cr[a]});
+  $('#repMore').innerHTML=
+    '<div class="rgrid" style="margin-top:8px">'+
+      box('',bn(c.run)+'টি','চলমান অর্ডার',c.run?tk(c.runSale)+'-এর':'')+
+      box('',tk(c.disc),'ছাড় দেওয়া হয়েছে','')+
+      box('',tk(c.fee),'ডেলিভারি চার্জ','')+
+      box('',bn(c.ev)+'টি','অনুষ্ঠানের অর্ডার','')+
+    '</div>'+
+    '<div class="rsec"><h4>দিনভিত্তিক হিসাব</h4>'+(dl.length?'<p class="help" style="margin:0">কোনো দিনে চাপ দিলে শুধু সেই দিনের অর্ডার দেখাবে।</p><table class="rtbl"><thead><tr><th>তারিখ</th><th>অর্ডার</th><th>বাতিল</th><th>বিক্রি</th></tr></thead><tbody>'+
+      dl.slice(0,120).map(function(d){return '<tr data-day="'+ymd(d.t)+'"><td>'+esc(dShort(d.t))+'<div class="rbar" style="width:'+Math.max(4,Math.round(d.s/maxS*100))+'%"></div></td><td>'+bn(d.n)+'</td><td>'+(d.x?bn(d.x):'–')+'</td><td><b>'+tk(d.s)+'</b></td></tr>'}).join('')+
+      '</tbody></table>'+(dl.length>120?'<p class="help">সবচেয়ে নতুন ১২০ দিন দেখানো হচ্ছে।</p>':''):'<p class="empty">এই সময়ে কোনো অর্ডার নেই।</p>')+'</div>'+
+    (il.length?'<div class="rsec"><h4>কোন আইটেম কত বিক্রি হয়েছে</h4><table class="rtbl"><thead><tr><th>আইটেম</th><th>পরিমাণ</th><th>টাকা</th></tr></thead><tbody>'+
+      il.map(function(i){return '<tr><td>'+esc(i.n)+'</td><td>'+bn(i.q)+'</td><td>'+tk(i.s)+'</td></tr>'}).join('')+'</tbody></table></div>':'')+
+    (crl.length?'<div class="rsec"><h4>বাতিলের কারণ</h4><table class="rtbl"><tbody>'+crl.map(function(k){return '<tr><td>'+esc(k)+'</td><td>'+bn(cr[k])+'টি</td></tr>'}).join('')+'</tbody></table></div>':'')+
+    (list.length?'<div class="rsec"><button class="btn sec sm" id="repCsv">এই হিসাব Excel (CSV) ফাইলে নামান</button></div>':'');
+  $('#repMore').classList.remove('hidden');
+}
+function csv(){
+  var R=range(),list=orders.filter(function(o){return o.createdAt>=R.from&&o.createdAt<R.to});
+  var q=function(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  var rows=[['অর্ডার নম্বর','তারিখ','সময়','স্ট্যাটাস','ধরন','কাস্টমার','ফোন','ঠিকানা','আইটেম','খাবারের দাম','ছাড়','ডেলিভারি চার্জ','মোট','বাতিলের কারণ']].concat(list.map(function(o){
+    var c=o.customer||{},d=new Date(o.createdAt);
+    return [o.orderNo,ymd(o.createdAt),d.toTimeString().slice(0,5),Store.statusLabel(o.status,o.type),o.kind==='event'?'অনুষ্ঠান':(o.type==='pickup'?'দোকান থেকে নেবে':'হোম ডেলিভারি'),
+      c.name,c.phone,c.address,(o.items||[]).map(function(i){return i.name+' x'+i.qty}).join('; '),o.subtotal,o.discount?o.discount.amount||0:0,o.delivery||0,o.total,o.cancelReason||''];
+  }));
+  var blob=new Blob(['﻿'+rows.map(function(r){return r.map(q).join(',')}).join('\r\n')],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='nsfoodcart-orders-'+(period==='all'?'all':ymd(R.from)+(R.to-R.from>864e5+36e5?'_to_'+ymd(R.to-1):''))+'.csv';
+  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);
+}
+function setPeriod(p){period=p;try{localStorage.setItem('nsfc_period',p)}catch(e){}if(filter==='active')filter='all';drawOrders()}
+$('#periods').onclick=function(e){var b=e.target.closest('[data-p]');if(!b)return;
+  if(b.dataset.p==='custom'&&!rFrom){rFrom=rTo=ymd(Date.now());$('#rFrom').value=rFrom;$('#rTo').value=rTo}
+  setPeriod(b.dataset.p)};
+$('#rFrom').onchange=$('#rTo').onchange=function(){rFrom=$('#rFrom').value;rTo=$('#rTo').value||rFrom;drawOrders()};
+$('#repToggle').onclick=function(){repOpen=!repOpen;drawReport()};
+$('#repMore').onclick=function(e){
+  if(e.target.closest('#repCsv')){csv();return}
+  var tr=e.target.closest('[data-day]');if(!tr)return;
+  rFrom=rTo=tr.dataset.day;$('#rFrom').value=$('#rTo').value=rFrom;setPeriod('custom');
+  $('#orderList').scrollIntoView({behavior:'smooth',block:'start'});
+};
+if(period==='custom')period='today';
 function orderCard(o){
   var c=o.customer||{},nx=NEXT[o.status],pick=o.type==='pickup';
   var nxLbl=nx?(pick&&nx[0]==='ontheway'?'রেডি হয়েছে':pick&&nx[0]==='delivered'?'বুঝে নিয়েছেন':nx[1]):'';
@@ -713,17 +860,29 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()
 /* ---------- আইটেম ---------- */
 function drawProds(){
   if(!prods.length){$('#prodList').innerHTML='<p class="empty">এখনো কোনো আইটেম নেই। "নতুন আইটেম" চেপে যোগ করুন।</p>';return}
-  var groups=cats.map(function(c){return {name:c.name,items:prods.filter(function(p){return p.category===c.id})}});
+  var groups=cats.map(function(c){return {cat:c,name:c.name,items:prods.filter(function(p){return p.category===c.id})}});
   var orphan=prods.filter(function(p){return !cats.some(function(c){return c.id===p.category})});
   if(orphan.length)groups.push({name:'ক্যাটাগরি ছাড়া',items:orphan});
   $('#prodList').innerHTML=groups.filter(function(g){return g.items.length}).map(function(g){
-    return '<div class="card"><p class="catname">'+esc(g.name)+'</p>'+g.items.map(function(p){
+    var c=g.cat,head='<p class="catname">'+esc(g.name)+'</p>';
+    if(c)head='<div class="cathead" data-cid="'+esc(c.id)+'"><div><p class="catname">'+esc(g.name)+(c.special?'<span class="badge-sp">⭐ স্পেশাল</span>':'')+'</p>'+
+      '<small class="'+(c.paused?'off':'')+'">'+(c.paused?(c.special?'বন্ধ: ওয়েবসাইটে "'+esc(spNote(c))+'" দেখাচ্ছে':'বন্ধ: ওয়েবসাইটে "এখন বন্ধ আছে" দেখাচ্ছে'):'চালু আছে')+'</small></div>'+
+      '<label class="switch" title="পুরো ক্যাটাগরি চালু/বন্ধ"><input type="checkbox" data-cav'+(c.paused?'':' checked')+' aria-label="'+esc(g.name)+' চালু"> '+(c.paused?'বন্ধ':'চালু')+'</label></div>';
+    return '<div class="card'+(c&&c.paused?' paused':'')+'">'+head+g.items.map(function(p){
       return '<div class="prow" data-id="'+esc(p.id)+'">'+(p.image?'<img src="'+esc(p.image)+'" alt="">':'<span class="ph">'+esc(String(p.name).charAt(0))+'</span>')+
-      '<div class="i"><b>'+esc(p.name)+(p.featured?' ★':'')+'</b><span>'+tk(p.price)+(p.available?'':' , আজ শেষ')+'</span></div>'+
+      '<div class="i"><b>'+esc(p.name)+(p.featured?' ★':'')+'</b><span>'+tk(p.price)+(p.available?'':' , '+(c&&c.special?esc(spNote(c)):'আজ শেষ'))+'</span></div>'+
       '<label class="switch" title="আজ পাওয়া যাচ্ছে"><input type="checkbox" data-av'+(p.available?' checked':'')+' aria-label="'+esc(p.name)+' পাওয়া যাচ্ছে"></label>'+
       '<button class="btn sec sm" data-edit>এডিট</button></div>'}).join('')+'</div>'}).join('');
 }
+function spNote(c){return String(c&&c.specialNote||'').trim()||'শুধু স্পেশাল দিনে'}
+function catSwitch(e){
+  var k=e.target.closest('[data-cav]');if(!k)return false;
+  var id=k.closest('[data-cid]').dataset.cid,on=k.checked;
+  Store.save('categories',id,{paused:!on}).then(function(){toast(on?'ক্যাটাগরি চালু হয়েছে':'ক্যাটাগরি বন্ধ করা হয়েছে')},fail);
+  return true;
+}
 $('#prodList').addEventListener('change',function(e){
+  if(catSwitch(e))return;
   var c=e.target.closest('[data-av]');if(!c)return;
   Store.save('products',c.closest('.prow').dataset.id,{available:c.checked}).catch(fail);
 });
@@ -765,22 +924,29 @@ function hrTxt(c){return (c.from==null||c.to==null||c.from===''||c.to==='')?'স
 function drawCats(){
   $('#catList').innerHTML=cats.length?cats.map(function(c){
     var n=prods.filter(function(p){return p.category===c.id}).length;
-    return '<div class="prow" data-id="'+esc(c.id)+'"><div class="i"><b>'+esc(c.name)+'</b><span>'+hrTxt(c)+', '+bn(n)+'টি আইটেম</span></div><button class="btn sec sm" data-edit>এডিট</button></div>'}).join(''):
+    return '<div class="prow" data-id="'+esc(c.id)+'" data-cid="'+esc(c.id)+'"><div class="i"><b>'+esc(c.name)+(c.special?'<span class="badge-sp">⭐ স্পেশাল</span>':'')+(c.paused?'<span class="badge-off">বন্ধ</span>':'')+'</b><span>'+hrTxt(c)+', '+bn(n)+'টি আইটেম</span></div>'+
+      '<label class="switch" title="পুরো ক্যাটাগরি চালু/বন্ধ"><input type="checkbox" data-cav'+(c.paused?'':' checked')+' aria-label="'+esc(c.name)+' চালু"></label><button class="btn sec sm" data-edit>এডিট</button></div>'}).join(''):
     '<p class="empty">কোনো ক্যাটাগরি নেই।</p>';
 }
+$('#catList').addEventListener('change',catSwitch);
 $('#catList').addEventListener('click',function(e){
   if(e.target.closest('[data-edit]'))catForm(cats.find(function(c){return c.id===e.target.closest('.prow').dataset.id}));
 });
 $('#addC').onclick=function(){catForm(null)};
 function catForm(c){
-  var n=!c;c=c||{name:'',sort:cats.length+1,from:'',to:''};
+  var n=!c;c=c||{name:'',sort:cats.length+1,from:'',to:'',paused:false,special:false,specialNote:'',pausedMsg:''};
   var m=modal('<h2>'+(n?'নতুন ক্যাটাগরি':'ক্যাটাগরি এডিট')+'</h2><form id="cf">'+
     '<label class="l">নাম</label><input class="field" name="name" required value="'+esc(c.name)+'">'+
     '<label class="l">ক্রম (ছোট সংখ্যা আগে)</label><input class="field" name="sort" type="number" value="'+esc(c.sort||0)+'">'+
     '<div class="grid2"><div><label class="l">শুরু (ঘণ্টা, ০–২৩)</label><input class="field" name="from" type="number" min="0" max="23" value="'+esc(c.from==null?'':c.from)+'"></div>'+
     '<div><label class="l">শেষ (ঘণ্টা, ১–২৪)</label><input class="field" name="to" type="number" min="1" max="24" value="'+esc(c.to==null?'':c.to)+'"></div></div>'+
     '<p class="help">সারাদিন পাওয়া গেলে সময় খালি রাখুন। যেমন দুপুর ১২টা থেকে বিকাল ৪টা হলে ১২ আর ১৬।</p>'+
+    '<div class="checks"><label><input type="checkbox" name="on"'+(c.paused?'':' checked')+'> ক্যাটাগরি চালু আছে</label><label><input type="checkbox" name="special"'+(c.special?' checked':'')+'> স্পেশাল ডে ক্যাটাগরি</label></div>'+
+    '<div id="cOffW"><label class="l">বন্ধ থাকলে ওয়েবসাইটে কী লেখা থাকবে (ঐচ্ছিক)</label><input class="field" name="pausedMsg" value="'+esc(c.pausedMsg||'')+'" placeholder="খালি রাখলে: আপাতত কিছু পাওয়া যাচ্ছে না। একটু পরে আবার দেখুন…"></div>'+
+    '<div id="cSpW"><label class="l">স্পেশাল লেখা (কবে পাওয়া যায়)</label><input class="field" name="specialNote" value="'+esc(c.specialNote||'')+'" placeholder="যেমন: শুধু শুক্রবার"><p class="help">আইটেম বা পুরো ক্যাটাগরি বন্ধ থাকলে "আজ শেষ"-এর বদলে এই লেখাটা দেখাবে, যেমন ⭐ শুধু শুক্রবার। চালু থাকলে ওয়েবসাইটের উপরে "আজকের স্পেশাল" হিসেবে দেখাবে।</p></div>'+
     '<div class="mfoot">'+(n?'':'<button type="button" class="btn danger" id="cDel" style="flex:0 0 auto">মুছুন</button>')+'<button type="button" class="btn sec" data-close>বাদ দিন</button><button class="btn">সেভ করুন</button></div></form>');
+  var cSync=function(){var f=$('#cf',m);$('#cSpW',m).classList.toggle('hidden',!f.special.checked);$('#cOffW',m).classList.toggle('hidden',f.special.checked)};
+  $('#cf',m).special.onchange=cSync;cSync();
   if(!n)$('#cDel',m).onclick=function(){
     var cnt=prods.filter(function(p){return p.category===c.id}).length;
     if(cnt){toast('এই ক্যাটাগরিতে '+bn(cnt)+'টি আইটেম আছে। আগে সেগুলো সরান।');return}
@@ -788,7 +954,8 @@ function catForm(c){
   };
   $('#cf',m).onsubmit=function(e){
     e.preventDefault();var f=e.target,num=function(v){return v===''?null:Number(v)};
-    Store.save('categories',n?null:c.id,{name:f.elements.name.value.trim(),sort:Number(f.sort.value)||0,from:num(f.from.value),to:num(f.to.value)})
+    Store.save('categories',n?null:c.id,{name:f.elements.name.value.trim(),sort:Number(f.sort.value)||0,from:num(f.from.value),to:num(f.to.value),
+      paused:!f.elements.on.checked,special:f.special.checked,specialNote:f.specialNote.value.trim().slice(0,60),pausedMsg:f.pausedMsg.value.trim().slice(0,160)})
       .then(function(){closeModal();toast('সেভ হয়েছে')},fail);
   };
 }

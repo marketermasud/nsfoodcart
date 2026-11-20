@@ -127,6 +127,16 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(20,11,11,.92);backdr
 .row .pr{font:700 19px var(--display);color:var(--gold);white-space:nowrap}
 .row .pr s{color:var(--muted);font-size:14px;font-weight:600;margin-right:4px}
 .row.out{opacity:.5}
+.row.sp.out,.pc.sp.out{opacity:.72}
+.spb{display:inline-block;font-size:13px;font-weight:600;color:#241a05;background:linear-gradient(90deg,var(--gold),#f6d98a);border-radius:999px;padding:4px 11px;white-space:nowrap}
+.paused{text-align:center;border:1.5px dashed var(--line);border-radius:16px;padding:26px 18px;margin:6px 0 4px;background:rgba(255,255,255,.02)}
+.paused .pi{font-size:34px;line-height:1;margin-bottom:8px}
+.paused b{display:block;font-size:19px;color:var(--cream);margin-bottom:4px}
+.paused span{color:var(--muted);font-size:15px;line-height:1.5}
+.spnote{text-align:center;margin:2px auto 10px;max-width:560px;font-size:15px;line-height:1.5;border-radius:12px;padding:9px 14px}
+.spnote.on{background:linear-gradient(90deg,rgba(242,182,50,.16),rgba(216,31,38,.16));color:var(--gold);border:1px solid rgba(242,182,50,.45)}
+.spnote.off{color:var(--muted);border:1px dashed var(--line)}
+.chip.dim{opacity:.55}
 .add{border:1.5px solid var(--red);background:transparent;color:var(--cream);border-radius:999px;height:40px;padding:0 16px;font-weight:600;white-space:nowrap}
 .add:hover{background:var(--red)}
 .qty{display:inline-flex;align-items:center;background:var(--red);border-radius:999px;height:40px}
@@ -461,7 +471,7 @@ if(Store.mode==='demo') $('#demoBar').classList.remove('hidden');
 $('#yr').textContent=new Date().getFullYear();
 
 Store.watchSettings(function(s){S=s;shell();menu();drawCart()});
-Store.watchCategories(function(c){cats=c;loaded.c=true;menu()});
+Store.watchCategories(function(c){cats=c;loaded.c=true;menu();if(loaded.p)drawCart();pmCtl()});
 Store.watchProducts(function(p){prods=p;loaded.p=true;menu();drawCart()});
 setInterval(menu,5*60*1000);
 var lastFree=false;
@@ -618,18 +628,25 @@ function openEvent(){
 }
 $('#evOpen').onclick=$('#evTop').onclick=$('#evTop2').onclick=openEvent;
 
+/* ---------- ক্যাটাগরি চালু/বন্ধ ও স্পেশাল ডে ---------- */
+function catOf(p){return cats.find(function(c){return c.id===p.category})}
+function catOff(c){return !!(c&&c.paused)}
+function canOrder(p){return !!p.available&&!catOff(catOf(p))}
+function spNote(c){return String(c&&c.specialNote||'').trim()||'শুধু স্পেশাল দিনে'}
+function offTxt(p){var c=catOf(p);if(c&&c.special)return spNote(c);return catOff(c)?'এখন বন্ধ':'আজ শেষ'}
+function spCls(p){var c=catOf(p);return c&&c.special?' sp':''}
 function card(p){
-  return '<div class="pc'+(p.available?'':' out')+'"><div class="pic" data-item="'+esc(p.id)+'">'+(p.image?'<img loading="lazy" src="'+esc(p.image)+'" alt="'+esc(p.name)+'">':ICON)+'</div>'+
+  return '<div class="pc'+(canOrder(p)?'':' out'+spCls(p))+'"><div class="pic" data-item="'+esc(p.id)+'">'+(p.image?'<img loading="lazy" src="'+esc(p.image)+'" alt="'+esc(p.name)+'">':ICON)+'</div>'+
     '<div class="b"><div data-item="'+esc(p.id)+'" role="button" tabindex="0"><div class="nm">'+esc(p.name)+'</div>'+rt(p)+'</div><div class="f"><span class="pr">'+tk(p.price)+'</span>'+ctl(p)+'</div></div></div>';
 }
 function ctl(p){
-  if(!p.available) return '<span class="ds">আজ শেষ</span>';
+  if(!canOrder(p)) return spCls(p)?'<span class="spb">⭐ '+esc(offTxt(p))+'</span>':'<span class="ds">'+offTxt(p)+'</span>';
   var q=cart[p.id]||0;
   if(!q) return '<button class="add" data-add="'+esc(p.id)+'" aria-label="'+esc(p.name)+' অর্ডার করুন">অর্ডার করুন</button>';
   return '<span class="qty"><button data-dec="'+esc(p.id)+'" aria-label="কমান">−</button><span>'+bn(q)+'</span><button data-add="'+esc(p.id)+'" aria-label="বাড়ান">+</button></span>';
 }
 function row(p){
-  return '<div class="row'+(p.available?'':' out')+'">'+
+  return '<div class="row'+(canOrder(p)?'':' out'+spCls(p))+'">'+
     (p.image?'<img class="thumb" data-item="'+esc(p.id)+'" loading="lazy" src="'+esc(p.image)+'" alt="">':'<span class="thumb ph" data-item="'+esc(p.id)+'">'+ICON+'</span>')+
     '<div class="info" data-item="'+esc(p.id)+'" role="button" tabindex="0"><div class="nm">'+esc(p.name)+(p.featured?'<span class="tag">জনপ্রিয়</span>':'')+'</div>'+
     (p.desc?'<div class="ds">'+esc(p.desc)+'</div>':'')+rt(p)+'</div>'+
@@ -638,18 +655,31 @@ function row(p){
 function menu(){
   var used=cats.filter(function(c){return prods.some(function(p){return p.category===c.id})});
   var orphan=prods.filter(function(p){return !cats.some(function(c){return c.id===p.category})});
-  var now=used.filter(Store.isNow)[0];
+  var open=function(c){return prods.some(function(p){return p.category===c.id&&canOrder(p)})};
+  // স্পেশাল ক্যাটাগরি চালু থাকলে বোর্ডে সেটাই আগে, না হলে সময় অনুযায়ী চলমান ক্যাটাগরি (বন্ধ করা ক্যাটাগরি বাদ)
+  var sp=used.filter(function(c){return c.special&&!c.paused&&open(c)})[0];
+  var now=used.filter(function(c){return Store.isNow(c)&&!c.paused})[0];
+  var top=sp||now;
   // বোর্ড
-  var bItems=now?prods.filter(function(p){return p.category===now.id}):prods.filter(function(p){return p.featured});
-  if(!bItems.length) bItems=prods.slice(0,4);
-  $('#board').innerHTML=bItems.length?'<h2>'+esc(now?S.nowLabel:'সবার পছন্দ')+'</h2><h3>'+esc(now?now.name:'জনপ্রিয় আইটেম')+'</h3><div class="cards">'+bItems.slice(0,4).map(card).join('')+'</div>':'';
+  var bItems=top?prods.filter(function(p){return p.category===top.id}):prods.filter(function(p){return p.featured&&canOrder(p)});
+  if(!bItems.length) bItems=prods.filter(canOrder).slice(0,4);
+  $('#board').innerHTML=bItems.length?'<h2>'+esc(sp?'⭐ আজকের স্পেশাল':now?S.nowLabel:'সবার পছন্দ')+'</h2><h3>'+esc(top?top.name:'জনপ্রিয় আইটেম')+'</h3><div class="cards">'+bItems.slice(0,4).map(card).join('')+'</div>':'';
   // চিপ
-  $('#chips').innerHTML=used.map(function(c){return '<a class="chip'+(now&&now.id===c.id?' on':'')+'" href="#cat-'+esc(c.id)+'">'+esc(c.name)+'</a>'}).join('');
+  $('#chips').innerHTML=used.map(function(c){return '<a class="chip'+(top&&top.id===c.id?' on':'')+(c.paused&&!c.special?' dim':'')+'" href="#cat-'+esc(c.id)+'">'+esc(c.name)+'</a>'}).join('');
   // সেকশন
   var html=used.map(function(c){
-    var hint=(c.from!=null&&c.to!=null&&c.from!==''&&c.to!=='')?'<p class="hint">'+(Store.isNow(c)?'এখন চলছে, ':'')+hr(c.from)+' থেকে '+hr(c.to)+'</p>':'';
-    return '<div class="sec" id="cat-'+esc(c.id)+'"><h2>'+esc(c.name)+'</h2>'+hint+'</div><div class="list">'+
-      prods.filter(function(p){return p.category===c.id}).map(row).join('')+'</div>';
+    var items=prods.filter(function(p){return p.category===c.id}),body,note='';
+    var timed=c.from!=null&&c.to!=null&&c.from!==''&&c.to!=='';
+    var hint=timed?'<p class="hint">'+(Store.isNow(c)&&!c.paused?'এখন চলছে, ':'')+hr(c.from)+' থেকে '+hr(c.to)+'</p>':'';
+    if(c.special){
+      note=open(c)?'<p class="spnote on">⭐ আজকের স্পেশাল চলছে! '+esc(spNote(c))+', সীমিত সময়ের জন্য।</p>'
+        :'<p class="spnote off">⭐ এই মেনু '+esc(spNote(c))+' পাওয়া যায়। স্পেশাল অফার চালু হলে এখান থেকেই অর্ডার করতে পারবেন।</p>';
+      body=items.map(row).join('');
+    }else if(c.paused){
+      hint='';
+      body='<div class="paused"><div class="pi">🍽️</div><b>এই মুহূর্তে '+esc(c.name)+' বন্ধ আছে</b><span>'+esc(String(c.pausedMsg||'').trim()||'আপাতত কিছু পাওয়া যাচ্ছে না। একটু পরে আবার দেখুন, অথবা অন্য মেনু থেকে অর্ডার করুন।')+'</span></div>';
+    }else body=items.map(row).join('');
+    return '<div class="sec" id="cat-'+esc(c.id)+'"><h2>'+esc(c.name)+'</h2>'+hint+note+'</div><div class="list">'+body+'</div>';
   }).join('');
   if(orphan.length) html+='<div class="sec"><h2>অন্যান্য</h2></div><div class="list">'+orphan.map(row).join('')+'</div>';
   if(!prods.length) html='<p class="empty">'+(loaded.p?'মেনু এখনো যোগ করা হয়নি। একটু পরে আবার দেখুন, অথবা কল করুন '+esc(S.phone)+'।':'মেনু লোড হচ্ছে…')+'</p>';
@@ -721,7 +751,7 @@ addEventListener('scroll',function(){if(spyT)return;spyT=requestAnimationFrame(f
 
 /* ---------- কার্ট ---------- */
 function lines(){
-  return Object.keys(cart).map(function(id){var p=prods.find(function(x){return x.id===id});return p&&p.available?{id:id,name:p.name,price:Number(p.price)||0,qty:cart[id]}:null}).filter(Boolean);
+  return Object.keys(cart).map(function(id){var p=prods.find(function(x){return x.id===id});return p&&canOrder(p)?{id:id,name:p.name,price:Number(p.price)||0,qty:cart[id]}:null}).filter(Boolean);
 }
 /* ---------- ছাড়ের অফার ---------- */
 var chk={phone:'',seen:null},lastOffer=false;
@@ -798,6 +828,7 @@ function totals(){
 }
 function save(){localStorage.setItem('nsfc_cart',JSON.stringify(cart))}
 function change(id,d){
+  if(d>0){var pp=prods.find(function(x){return x.id===id});if(pp&&!canOrder(pp))return}
   cart[id]=(cart[id]||0)+d; if(cart[id]<=0) delete cart[id]; if(cart[id]>50) cart[id]=50;
   save();menu();drawCart();pmCtl();
 }
